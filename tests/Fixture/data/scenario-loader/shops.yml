@@ -1,0 +1,11 @@
+- _ref: shop_a
+  _keys: shop_name
+  shop_name: '本店'
+  location: '東京都渋谷区'
+  opened_at: '@today'
+
+- _ref: shop_b
+  _keys: shop_name
+  shop_name: '支店'
+  location: '東京都品川区'
+  opened_at: '@today -3 months'

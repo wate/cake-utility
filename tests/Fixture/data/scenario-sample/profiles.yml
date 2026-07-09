@@ -1,0 +1,11 @@
+- _ref: profile_admin
+  _keys: user_id
+  user_id: 'ref:user_admin'
+  bio: 'システム全体の管理責任者です。'
+  address: '東京都千代田区'
+
+- _ref: profile_staff
+  _keys: user_id
+  user_id: 'ref:user_staff'
+  bio: '店舗運営担当です。'
+  address: '神奈川県横浜市'

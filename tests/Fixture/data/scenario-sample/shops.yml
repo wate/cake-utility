@@ -1,0 +1,11 @@
+- _ref: shop_main
+  _keys: shop_name
+  shop_name: '本店'
+  location: '東京'
+  opened_at: '@today -1 year'
+
+- _ref: shop_sub
+  _keys: shop_name
+  shop_name: '横浜店'
+  location: '横浜'
+  opened_at: '@today -6 months'

@@ -1,0 +1,15 @@
+- _ref: user_admin
+  _keys: email
+  group_id: 'ref:group_admin'
+  username: 'admin_user'
+  email: 'admin@example.com'
+  created: '@now'
+  birthday: '@today -20 years'
+
+- _ref: user_staff
+  _keys: email
+  group_id: 'ref:group_staff'
+  username: 'staff_user'
+  email: 'staff@example.com'
+  created: '@now -1 day'
+  birthday: '@today -25 years'

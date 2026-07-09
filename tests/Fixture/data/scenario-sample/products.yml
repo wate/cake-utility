@@ -1,0 +1,11 @@
+- _ref: prod_apple
+  _keys: product_code
+  product_code: 'P001'
+  name: '高級りんご'
+  base_price: 500
+
+- _ref: prod_orange
+  _keys: product_code
+  product_code: 'P002'
+  name: '完熟みかん'
+  base_price: 300

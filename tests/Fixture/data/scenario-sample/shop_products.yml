@@ -1,0 +1,32 @@
+- _ref: sp_main_apple
+  _keys: [shop_id, product_id]
+  shop_id: 'ref:shop_main'
+  product_id: 'ref:prod_apple'
+  sale_price: 550
+  start_time: '@now +12 hours'
+  is_active: true
+  meta_json:
+    category: 'fruit'
+    tags: ['premium', 'local']
+
+- _ref: sp_main_orange
+  _keys: [shop_id, product_id]
+  shop_id: 'ref:shop_main'
+  product_id: 'ref:prod_orange'
+  sale_price: 330
+  start_time: '@now'
+  is_active: true
+  meta_json:
+    category: 'fruit'
+    tags: ['seasonal']
+
+- _ref: sp_sub_apple
+  _keys: [shop_id, product_id]
+  shop_id: 'ref:shop_sub'
+  product_id: 'ref:prod_apple'
+  sale_price: 520
+  start_time: '@today +1 day'
+  is_active: false
+  meta_json:
+    category: 'fruit'
+    tags: ['discount']

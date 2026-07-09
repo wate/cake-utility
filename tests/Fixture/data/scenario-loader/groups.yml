@@ -1,0 +1,7 @@
+- _ref: group_admin
+  _keys: name
+  name: '管理者グループ'
+
+- _ref: group_staff
+  _keys: name
+  name: 'スタッフグループ'

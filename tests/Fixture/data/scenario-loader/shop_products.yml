@@ -1,0 +1,15 @@
+- _ref: sp_apple_shop_a
+  _keys: [shop_id, product_id]
+  shop_id: 'ref:shop_a'
+  product_id: 'ref:prod_apple'
+  sale_price: 800
+  is_active: true
+  meta_json: '{"category": "fruit", "tags": ["premium"]}'
+
+- _ref: sp_orange_shop_b
+  _keys: [shop_id, product_id]
+  shop_id: 'ref:shop_b'
+  product_id: 'ref:prod_orange'
+  sale_price: 400
+  is_active: true
+  meta_json: '{"category": "fruit", "tags": ["standard"]}'
