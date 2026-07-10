@@ -123,29 +123,15 @@ class ScenarioLoaderTest extends TestCase
     public function testScenarioLoadingWithRefResolution(): void
     {
         $tableLocator = $this->createSqliteTableLocator();
-        $loader = new ScenarioLoader($tableLocator, 'test_scenario');
-        $baseDir = dirname(__DIR__, 3) . '/tests/Fixture/data/scenario-loader';
+        $baseDir = dirname(__DIR__, 3) . '/tests/Fixture/data';
+        $loader = new ScenarioLoader($baseDir, $tableLocator, 'test_scenario');
 
-        // Load scenario files in dependency order
-        $files = [
-            'groups.yml' => 'CakeUtility.Groups',
-            'users.yml' => 'CakeUtility.Users',
-            'profiles.yml' => 'CakeUtility.Profiles',
-            'shops.yml' => 'CakeUtility.Shops',
-            'products.yml' => 'CakeUtility.Products',
-            'shop_products.yml' => 'CakeUtility.ShopProducts',
-        ];
+        // Load entire scenario (all files in dependency order)
+        $result = $loader->load('scenario-loader');
 
-        $totalInserted = 0;
-        foreach ($files as $file => $table) {
-            $result = $loader->load($baseDir . '/' . $file, $table);
-            $totalInserted += $result['records_inserted'];
-            $this->assertArrayHasKey('records_inserted', $result, 'load() should return records_inserted count');
-            $this->assertArrayHasKey('records_updated', $result, 'load() should return records_updated count');
-            echo "\nFile: {$file} | Inserted: {$result['records_inserted']} | Updated: {$result['records_updated']}";
-        }
-
-        $this->assertGreaterThan(0, $totalInserted, 'At least some records should be inserted');
+        $this->assertArrayHasKey('records_inserted', $result, 'load() should return records_inserted count');
+        $this->assertArrayHasKey('records_updated', $result, 'load() should return records_updated count');
+        $this->assertGreaterThan(0, $result['records_inserted'], 'At least some records should be inserted');
 
         // Verify boolean/json columns are actually stored and read back as their declared types,
         // not just as the raw integer/text SQLite infers for those columns.
@@ -159,18 +145,18 @@ class ScenarioLoaderTest extends TestCase
     public function testInsertAndUpdateCounting(): void
     {
         $tableLocator = $this->createSqliteTableLocator();
-        $loader = new ScenarioLoader($tableLocator, 'test_scenario');
-        $baseDir = dirname(__DIR__, 3) . '/tests/Fixture/data/scenario-loader';
+        $baseDir = dirname(__DIR__, 3) . '/tests/Fixture/data';
+        $loader = new ScenarioLoader($baseDir, $tableLocator, 'test_scenario');
 
         // First load: all inserts
-        $result1 = $loader->load($baseDir . '/groups.yml', 'CakeUtility.Groups');
+        $result1 = $loader->load('scenario-loader', 'groups');
         $firstInsertCount = $result1['records_inserted'];
         $firstUpdateCount = $result1['records_updated'];
         $this->assertGreaterThan(0, $firstInsertCount, 'First load should insert records');
         $this->assertEquals(0, $firstUpdateCount, 'First load should not update any records');
 
         // Second load (idempotent): all updates (same data)
-        $result2 = $loader->load($baseDir . '/groups.yml', 'CakeUtility.Groups');
+        $result2 = $loader->load('scenario-loader', 'groups');
         $secondInsertCount = $result2['records_inserted'];
         $secondUpdateCount = $result2['records_updated'];
         $this->assertEquals(0, $secondInsertCount, 'Second load should not insert duplicate records');
@@ -180,21 +166,21 @@ class ScenarioLoaderTest extends TestCase
     public function testScenarioClear(): void
     {
         $tableLocator = $this->createSqliteTableLocator();
-        $loader = new ScenarioLoader($tableLocator, 'test_scenario');
-        $baseDir = dirname(__DIR__, 3) . '/tests/Fixture/data/scenario-loader';
+        $baseDir = dirname(__DIR__, 3) . '/tests/Fixture/data';
+        $loader = new ScenarioLoader($baseDir, $tableLocator, 'test_scenario');
 
         // Load first
-        $result = $loader->load($baseDir . '/groups.yml', 'CakeUtility.Groups');
+        $result = $loader->load('scenario-loader', 'groups');
         $inserted = $result['records_inserted'];
         $this->assertGreaterThan(0, $inserted, 'Records should be inserted');
 
         // Verify data exists
-        $groupsTable = TableRegistry::getTableLocator()->get('CakeUtility.Groups');
+        $groupsTable = TableRegistry::getTableLocator()->get('CakeUtility.Groups', ['connectionName' => 'test_scenario']);
         $countBefore = $groupsTable->find()->count();
         $this->assertGreaterThan(0, $countBefore, 'Groups table should have data');
 
         // Clear
-        $deleted = $loader->clear($baseDir . '/groups.yml', 'CakeUtility.Groups');
+        $deleted = $loader->clear('scenario-loader', 'groups');
         $this->assertEquals($inserted, $deleted, 'Clear should delete same number of records as inserted');
 
         // Verify data is deleted
@@ -205,17 +191,23 @@ class ScenarioLoaderTest extends TestCase
     public function testInvalidRefThrowsException(): void
     {
         $tableLocator = $this->createSqliteTableLocator();
-        $loader = new ScenarioLoader($tableLocator, 'test_scenario');
-        $tmpFile = tempnam(sys_get_temp_dir(), 'scenario_err');
+        $tmpDir = sys_get_temp_dir() . '/scenario_' . uniqid();
+        mkdir($tmpDir);
+        $tmpFile = $tmpDir . '/users.yml';
         file_put_contents($tmpFile, "- _ref: user_bad\n  group_id: 'ref:non_existent_group'");
 
+        $tmpParentDir = dirname($tmpDir);
+        $scenarioName = basename($tmpDir);
+        $loader = new ScenarioLoader($tmpParentDir, $tableLocator, 'test_scenario');
+
         try {
-            $loader->load($tmpFile, 'CakeUtility.Users');
+            $loader->load($scenarioName);
             $this->fail('Expected RuntimeException was not thrown');
         } catch (\RuntimeException $e) {
             $this->assertStringContainsString('Reference "non_existent_group" not found', $e->getMessage());
         } finally {
             unlink($tmpFile);
+            rmdir($tmpDir);
         }
     }
 }

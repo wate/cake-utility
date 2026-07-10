@@ -79,6 +79,44 @@ YAML Data Loader 仕様
    `ref:` プレフィックスを持つ値をマップを用いて実際のIDに置換し、同時にテーブルスキーマに基づいた型変換(キャスト)を行います。
    ※ `context` には `Table` オブジェクトまたは `TableSchema` オブジェクトを指定します。
 
+### メソッド仕様
+
+#### parse() メソッド
+
+```php
+$records = $loader->parse(string $filePath): array
+```
+
+YAMLファイルを読み込み、PHP配列に変換します。
+
+- YAMLの `@now`, `@today` などの予約語が解決されます
+- 制御キー(`_ref`, `_keys`)も含まれた状態で返されます
+- 戻り値: `[['_ref' => '...', '_keys' => '...', 'column' => 'value'], ...]` の形式
+
+#### resolve() メソッド
+
+```php
+$resolved = $loader->resolve(array $records, array $refMap, $context): array
+```
+
+`parse()` で取得した配列に対して、参照解決と型変換を実行します。
+
+- `$refMap`: `['ref_label' => id_value, ...]` の形式。`ref:` プレフィックス付きの値がこのマップを用いて置換されます
+- `$context`: `Table` または `TableSchema` オブジェクト。型変換に使用されます
+- 戻り値: 参照解決済み、型変換済みの配列(制御キーは除外)
+
+#### extractReferences() メソッド
+
+```php
+$references = $loader->extractReferences(string $filePath): array
+```
+
+YAMLファイルから全ての `ref:` プレフィックス付きの値を抽出します。
+
+- 依存関係グラフの構築に使用されます(`ScenarioLoader` 内部で利用)
+- ネストされた構造内の参照も自動抽出します
+- 戻り値: `['ref_label1', 'ref_label2', ...]` の形式
+
 実装サンプル
 -------------------------
 

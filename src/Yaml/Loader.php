@@ -116,6 +116,50 @@ class Loader
     }
 
     /**
+     * YAMLファイルまたは文字列から ref: で始まるすべての参照を抽出する
+     *
+     * @param string $input YAMLファイルの絶対パス、またはYAML文字列
+     * @return array<string> ユニークな参照ラベル配列 (例: ['user1', 'post1', ...])
+     * @throws RuntimeException パース失敗時
+     */
+    public function extractReferences(string $input): array
+    {
+        if (file_exists($input)) {
+            $data = Yaml::parseFile($input);
+        } else {
+            $data = Yaml::parse($input);
+        }
+
+        if (!is_array($data)) {
+            return [];
+        }
+
+        $references = [];
+        $this->scanForReferences($data, $references);
+        return array_unique($references);
+    }
+
+    /**
+     * 再帰的に配列内のすべての ref: 参照を走査して抽出する
+     *
+     * @param mixed $data
+     * @param array $references 参照ラベルを蓄積する配列
+     * @return void
+     */
+    private function scanForReferences($data, &$references): void
+    {
+        if (is_array($data)) {
+            foreach ($data as $value) {
+                if (is_string($value) && str_starts_with($value, 'ref:')) {
+                    $references[] = substr($value, 4); // 'ref:' プレフィックスを除去
+                } elseif (is_array($value)) {
+                    $this->scanForReferences($value, $references);
+                }
+            }
+        }
+    }
+
+    /**
      * 参照ラベルを実際のID値に置換し、スキーマに基づいた型変換を行う（参照解決フェーズ）
      *
      * @param array $data 処理対象のデータ

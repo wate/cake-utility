@@ -148,4 +148,86 @@ YAML;
         $this->assertEquals('admin', $resolved['meta']['role']);
         $this->assertInstanceOf(\DateTimeImmutable::class, $resolved['created']);
     }
+
+    /**
+     * extractReferences によるref:参照の抽出を検証します。
+     */
+    public function testExtractReferences(): void
+    {
+        // Create a temporary YAML file with ref: references
+        $tmpFile = tempnam(sys_get_temp_dir(), 'yaml_');
+        $yaml = <<<YAML
+- _ref: group_1
+  name: Admins
+- _ref: user_1
+  name: Taro
+  group_id: 'ref:group_1'
+- _ref: profile_1
+  user_id: 'ref:user_1'
+  bio: 'ref:unknown_ref'
+YAML;
+        file_put_contents($tmpFile, $yaml);
+
+        $references = $this->Loader->extractReferences($tmpFile);
+
+        // Should find all ref: references
+        $this->assertContains('group_1', $references);
+        $this->assertContains('user_1', $references);
+        $this->assertContains('unknown_ref', $references);
+        $this->assertCount(3, $references);
+
+        unlink($tmpFile);
+    }
+
+    /**
+     * extractReferences で ref: 参照がないファイルを処理する場合を検証します。
+     */
+    public function testExtractReferencesNoReferences(): void
+    {
+        $tmpFile = tempnam(sys_get_temp_dir(), 'yaml_');
+        $yaml = <<<YAML
+- _ref: group_1
+  name: Admins
+- name: Taro
+  email: taro@example.com
+YAML;
+        file_put_contents($tmpFile, $yaml);
+
+        $references = $this->Loader->extractReferences($tmpFile);
+
+        // Should find no ref: references (only _ref)
+        $this->assertEmpty($references);
+
+        unlink($tmpFile);
+    }
+
+    /**
+     * extractReferences でネストされたref:参照を抽出する場合を検証します。
+     */
+    public function testExtractReferencesNested(): void
+    {
+        $tmpFile = tempnam(sys_get_temp_dir(), 'yaml_');
+        $yaml = <<<YAML
+- _ref: item_1
+  name: Item
+  metadata:
+    created_by: 'ref:user_1'
+    owner: 'ref:user_2'
+  tags:
+    - 'ref:tag_1'
+    - 'ref:tag_2'
+YAML;
+        file_put_contents($tmpFile, $yaml);
+
+        $references = $this->Loader->extractReferences($tmpFile);
+
+        // Should find all nested ref: references
+        $this->assertContains('user_1', $references);
+        $this->assertContains('user_2', $references);
+        $this->assertContains('tag_1', $references);
+        $this->assertContains('tag_2', $references);
+        $this->assertCount(4, $references);
+
+        unlink($tmpFile);
+    }
 }

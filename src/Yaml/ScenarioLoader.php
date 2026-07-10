@@ -9,6 +9,7 @@ use Cake\ORM\Locator\TableLocator;
 use Cake\ORM\Exception\PersistenceFailedException;
 use Cake\Datasource\EntityInterface;
 use Cake\Datasource\ConnectionManager;
+use Cake\Utility\Inflector;
 use RuntimeException;
 
 /**
@@ -20,6 +21,11 @@ use RuntimeException;
  */
 class ScenarioLoader
 {
+    /**
+     * Base directory path for scenario files.
+     */
+    protected string $basePath;
+
     /**
      * Reference map: maps _ref labels to their corresponding database IDs.
      *
@@ -40,24 +46,68 @@ class ScenarioLoader
     /**
      * Constructor.
      *
+     * @param string $basePath Base directory path for scenario files.
      * @param TableLocator|null $tableLocator Optional TableLocator instance.
      * @param string $connectionName Connection name for table resolution.
      */
-    public function __construct(?TableLocator $tableLocator = null, string $connectionName = 'default')
+    public function __construct(string $basePath, ?TableLocator $tableLocator = null, string $connectionName = 'default')
     {
+        $this->basePath = rtrim($basePath, DIRECTORY_SEPARATOR);
         $this->tableLocator = $tableLocator ?? new TableLocator();
         $this->connectionName = $connectionName;
     }
 
     /**
-     * Load a scenario from a specified file or directory.
+     * Load a scenario from a specified scenario name.
      *
-     * @param string $filePath Path to the YAML file or directory containing scenario files.
+     * @param string $scenarioName Scenario name (directory containing YAML files).
+     * @param string|array<string>|null $tableNames Target table name(s). Omit to load all tables in scenario.
+     * @return array<string, int> Associative array with 'records_inserted' and 'records_updated' counts.
+     * @throws RuntimeException If loading fails.
+     */
+    public function load(string $scenarioName, string|array|null $tableNames = null): array
+    {
+        $scenarioPath = $this->resolvePath($scenarioName);
+        $yamlFiles = $this->collectYamlFilesFromScenario($scenarioPath);
+
+        // Phase 1: Build dependency graph and sort files based on data dependencies
+        $yamlFiles = $this->orderFilesByDependency($yamlFiles);
+
+        // Normalize $tableNames to array
+        $tableFilter = $tableNames ? (array)$tableNames : null;
+
+        $totalInserted = 0;
+        $totalUpdated = 0;
+
+        foreach ($yamlFiles as $filePath) {
+            // Infer table name from file name
+            $inferredTableName = $this->resolveTableNameFromFile($filePath);
+
+            // Filter by specified table names if provided
+            if ($tableFilter !== null && !in_array($inferredTableName, $tableFilter, true)) {
+                continue;
+            }
+
+            $result = $this->loadTable($filePath, $inferredTableName);
+            $totalInserted += $result['records_inserted'];
+            $totalUpdated += $result['records_updated'];
+        }
+
+        return [
+            'records_inserted' => $totalInserted,
+            'records_updated' => $totalUpdated,
+        ];
+    }
+
+    /**
+     * Load a single table from a YAML file.
+     *
+     * @param string $filePath Path to the YAML file (absolute path).
      * @param string $tableName The CakePHP table alias to target.
      * @return array<string, int> Associative array with 'records_inserted' and 'records_updated' counts.
      * @throws RuntimeException If loading fails.
      */
-    public function load(string $filePath, string $tableName): array
+    protected function loadTable(string $filePath, string $tableName): array
     {
         $table = $this->getTable($tableName);
         $records = $this->parseYaml($filePath);
@@ -84,15 +134,51 @@ class ScenarioLoader
     /**
      * Clear a scenario from the database.
      *
-     * Deletes records in reverse YAML order using `_keys` for lookup.
-     * Uses refMap to track which `_ref` records were deleted.
+     * Deletes records in reverse order.
      *
-     * @param string $filePath Path to the YAML file or directory.
+     * @param string $scenarioName Scenario name (directory containing YAML files).
+     * @param string|array<string>|null $tableNames Target table name(s). Omit to clear all tables in scenario.
+     * @return int Number of records deleted.
+     * @throws RuntimeException On deletion failure.
+     */
+    public function clear(string $scenarioName, string|array|null $tableNames = null): int
+    {
+        $scenarioPath = $this->resolvePath($scenarioName);
+        $yamlFiles = $this->collectYamlFilesFromScenario($scenarioPath);
+
+        // Reverse order for deletion (dependents first)
+        $yamlFiles = array_reverse($yamlFiles);
+
+        // Normalize $tableNames to array
+        $tableFilter = $tableNames ? (array)$tableNames : null;
+
+        $totalDeleted = 0;
+
+        foreach ($yamlFiles as $filePath) {
+            // Infer table name from file name
+            $inferredTableName = $this->resolveTableNameFromFile($filePath);
+
+            // Filter by specified table names if provided
+            if ($tableFilter !== null && !in_array($inferredTableName, $tableFilter, true)) {
+                continue;
+            }
+
+            $deleted = $this->clearTable($filePath, $inferredTableName);
+            $totalDeleted += $deleted;
+        }
+
+        return $totalDeleted;
+    }
+
+    /**
+     * Clear a single table from a YAML file.
+     *
+     * @param string $filePath Path to the YAML file (absolute path).
      * @param string $tableName The CakePHP table alias to target.
      * @return int Number of records deleted.
      * @throws RuntimeException On deletion failure.
      */
-    public function clear(string $filePath, string $tableName): int
+    protected function clearTable(string $filePath, string $tableName): int
     {
         $table = $this->getTable($tableName);
         $records = $this->parseYaml($filePath);
@@ -345,6 +431,218 @@ class ScenarioLoader
             }
         }
         return $record;
+    }
+
+    /**
+     * Collect all YAML files from a scenario directory.
+     *
+     * @param string $scenarioPath Path to the scenario directory.
+     * @return array<string> Sorted array of YAML file paths.
+     */
+    protected function collectYamlFilesFromScenario(string $scenarioPath): array
+    {
+        $files = [];
+
+        if (is_file($scenarioPath)) {
+            // Single file
+            return [$scenarioPath];
+        }
+
+        if (!is_dir($scenarioPath)) {
+            return $files;
+        }
+
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($scenarioPath, \RecursiveDirectoryIterator::SKIP_DOTS)
+        );
+
+        foreach ($iterator as $file) {
+            if ($file->getExtension() === 'yml' || $file->getExtension() === 'yaml') {
+                $files[] = $file->getPathname();
+            }
+        }
+
+        sort($files);
+        return $files;
+    }
+
+    /**
+     * Order YAML files based on data dependencies extracted from ref: references.
+     *
+     * Builds a dependency graph where each file's dependencies are determined by
+     * the ref: labels it references, and returns files in topological sort order.
+     *
+     * @param array<string> $yamlFiles List of YAML file paths.
+     * @return array<string> Files ordered by dependency (dependents first).
+     * @throws RuntimeException On circular dependency detection.
+     */
+    protected function orderFilesByDependency(array $yamlFiles): array
+    {
+        if (count($yamlFiles) <= 1) {
+            return $yamlFiles;
+        }
+
+        $graph = $this->buildDependencyGraph($yamlFiles);
+        return $this->topologicalSort($yamlFiles, $graph);
+    }
+
+    /**
+     * Build a dependency graph where each file maps to the files it depends on.
+     *
+     * For each file, extract all ref: references, then determine which other files
+     * contain records with those _ref labels. Those source files are dependencies.
+     *
+     * @param array<string> $yamlFiles List of YAML file paths.
+     * @return array<string, array<string>> Dependency graph: filePath => [dependencyFilePaths].
+     */
+    protected function buildDependencyGraph(array $yamlFiles): array
+    {
+        $graph = [];
+        $refToFile = []; // Maps each _ref label to the file that defines it
+
+        // Phase 1: Scan all files to build _ref => file mapping
+        $loader = new Loader();
+        foreach ($yamlFiles as $filePath) {
+            $parsed = $loader->parse(file_get_contents($filePath));
+            if (!is_array($parsed)) {
+                continue;
+            }
+
+            // Handle both single record (associative array) and multiple records (array of arrays)
+            $records = isset($parsed[0]) && is_array($parsed[0]) ? $parsed : [$parsed];
+
+            foreach ($records as $record) {
+                if (is_array($record) && isset($record['_ref'])) {
+                    $ref = $record['_ref'];
+                    $refToFile[$ref] = $filePath;
+                }
+            }
+        }
+
+        // Phase 2: For each file, extract ref: references and build dependency list
+        foreach ($yamlFiles as $filePath) {
+            $graph[$filePath] = [];
+            $references = $loader->extractReferences($filePath);
+
+            foreach ($references as $ref) {
+                // If this reference is defined in another file, that file is a dependency
+                if (isset($refToFile[$ref]) && $refToFile[$ref] !== $filePath) {
+                    $dependencyFile = $refToFile[$ref];
+                    if (!in_array($dependencyFile, $graph[$filePath], true)) {
+                        $graph[$filePath][] = $dependencyFile;
+                    }
+                }
+            }
+        }
+
+        return $graph;
+    }
+
+    /**
+     * Perform topological sort on the dependency graph using Kahn's algorithm.
+     *
+     * @param array<string> $yamlFiles List of YAML file paths.
+     * @param array<string, array<string>> $graph Dependency graph.
+     * @return array<string> Sorted file list (dependencies before dependents).
+     * @throws RuntimeException On circular dependency detection.
+     */
+    protected function topologicalSort(array $yamlFiles, array $graph): array
+    {
+        // Build in-degree count for each file
+        $inDegree = array_combine($yamlFiles, array_fill(0, count($yamlFiles), 0));
+        $adjacencyList = array_combine($yamlFiles, array_fill(0, count($yamlFiles), []));
+
+        foreach ($graph as $file => $dependencies) {
+            foreach ($dependencies as $dep) {
+                if (isset($adjacencyList[$dep])) {
+                    $adjacencyList[$dep][] = $file;
+                    $inDegree[$file]++;
+                }
+            }
+        }
+
+        // Collect nodes with in-degree 0
+        $queue = array_filter($yamlFiles, fn($file) => $inDegree[$file] === 0);
+        $sorted = [];
+
+        while (!empty($queue)) {
+            $file = array_shift($queue);
+            $sorted[] = $file;
+
+            foreach ($adjacencyList[$file] as $neighbor) {
+                $inDegree[$neighbor]--;
+                if ($inDegree[$neighbor] === 0) {
+                    $queue[] = $neighbor;
+                }
+            }
+        }
+
+        // Check for circular dependencies
+        if (count($sorted) !== count($yamlFiles)) {
+            throw new RuntimeException('Circular dependency detected in YAML scenario files');
+        }
+
+        return $sorted;
+    }
+
+    /**
+     * Resolve table name from a YAML file path.
+     *
+     * Removes any leading numeric prefix (e.g., "01_", "01-", "02_", "02-") from the filename
+     * before converting to table name format. This allows organizing files with
+     * sequence numbers while maintaining clean table names.
+     *
+     * Examples:
+     *   01_groups.yml       → groups
+     *   01-groups.yml       → groups
+     *   02_users.yml        → users
+     *   02-users.yml        → users
+     *   03_shop_products.yml → shop_products
+     *   03-shop_products.yml → shop_products
+     *
+     * @param string $filePath Absolute path to the YAML file.
+     * @return string Table name (CakePHP table alias).
+     */
+    protected function resolveTableNameFromFile(string $filePath): string
+    {
+        $basename = basename($filePath, '.' . pathinfo($filePath, PATHINFO_EXTENSION));
+
+        // Remove leading numeric prefix with underscore or hyphen (e.g., "01_", "01-", "02_", etc.)
+        // This allows organizing scenario files with sequence numbers for clarity
+        // Users can choose their preferred separator: underscore or hyphen
+        $basename = preg_replace('/^\d+[_-]/', '', $basename);
+
+        return Inflector::tableize($basename);
+    }
+
+    /**
+     * Resolve scenario name to absolute file path.
+     *
+     * @param string $scenarioName Scenario name (filename without extension or directory).
+     * @return string Absolute path to the YAML file.
+     * @throws RuntimeException If path cannot be resolved.
+     */
+    protected function resolvePath(string $scenarioName): string
+    {
+        // Try with .yaml extension
+        $yamlPath = $this->basePath . DIRECTORY_SEPARATOR . $scenarioName . '.yaml';
+        if (is_file($yamlPath)) {
+            return $yamlPath;
+        }
+
+        // Try with .yml extension
+        $ymlPath = $this->basePath . DIRECTORY_SEPARATOR . $scenarioName . '.yml';
+        if (is_file($ymlPath)) {
+            return $ymlPath;
+        }
+
+        // Try as directory
+        $dirPath = $this->basePath . DIRECTORY_SEPARATOR . $scenarioName;
+        if (is_dir($dirPath)) {
+            return $dirPath;
+        }
+
+        throw new RuntimeException("Scenario not found: {$scenarioName} (tried in {$this->basePath})");
     }
 
     /**

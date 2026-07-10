@@ -125,6 +125,13 @@ TEXT;
         $table = $args->getOption('table') ?: $args->getArgument('table');
         $baseDir = $args->getOption('base-dir');
 
+        // Normalize table name: 'Plugin.TableName' -> 'table_name'
+        // This handles both explicit plugin-qualified names and inferred table names
+        if ($table !== null && strpos($table, '.') !== false) {
+            [$plugin, $tableName] = explode('.', $table, 2);
+            $table = Inflector::tableize($tableName);
+        }
+
         // base-dirを絶対パスに変換
         $baseDirPath = $this->resolveBaseDir($baseDir);
 
@@ -153,10 +160,10 @@ TEXT;
         $io->out('--------------------------------------------------');
 
         if ($action === 'clear') {
-            return $this->executeClear($scenarioFiles, $table, $io);
+            return $this->executeClear($scenarioFiles, $table, $baseDirPath, $io);
         }
 
-        return $this->executeLoad($scenarioFiles, $table, $io);
+        return $this->executeLoad($scenarioFiles, $table, $baseDirPath, $io);
     }
 
     /**
@@ -231,12 +238,13 @@ TEXT;
      *
      * @param array<string> $files ファイルパスの配列
      * @param string|null $table テーブル名（省略時は全テーブル）
+     * @param string $baseDirPath ベースディレクトリパス
      * @param ConsoleIo $io I/Oオブジェクト
      * @return int
      */
-    protected function executeLoad(array $files, ?string $table, ConsoleIo $io): int
+    protected function executeLoad(array $files, ?string $table, string $baseDirPath, ConsoleIo $io): int
     {
-        $loader = new ScenarioLoader();
+        $loader = new ScenarioLoader($baseDirPath);
         $totalInserted = 0;
         $totalUpdated = 0;
         $error = false;
@@ -246,8 +254,8 @@ TEXT;
             $io->out("Processing: {$relativePath}");
 
             try {
-                $tableAlias = $table ?: $this->resolveTableName($file);
-                $result = $loader->load($file, $tableAlias);
+                $scenarioName = $this->extractScenarioName($file, $baseDirPath);
+                $result = $loader->load($scenarioName, $table);
 
                 $inserted = $result['records_inserted'] ?? 0;
                 $updated = $result['records_updated'] ?? 0;
@@ -276,16 +284,17 @@ TEXT;
      *
      * @param array<string> $files ファイルパスの配列
      * @param string|null $table テーブル名（省略時は全テーブル）
+     * @param string $baseDirPath ベースディレクトリパス
      * @param ConsoleIo $io I/Oオブジェクト
      * @return int
      */
-    protected function executeClear(array $files, ?string $table, ConsoleIo $io): int
+    protected function executeClear(array $files, ?string $table, string $baseDirPath, ConsoleIo $io): int
     {
         if (empty($files)) {
             $io->warning('No YAML files found.');
             return self::CODE_SUCCESS;
         }
-
+        $loader = new ScenarioLoader($baseDirPath);
         $totalDeleted = 0;
         $error = false;
 
@@ -294,16 +303,8 @@ TEXT;
             $io->out("Processing: {$relativePath}");
 
             try {
-                $loader = new ScenarioLoader();
-
-                if ($table) {
-                    $tableAlias = $table;
-                } else {
-                    // Table name is derived from the scenario file or directory name
-                    $tableAlias = $this->resolveTableName($file);
-                }
-
-                $deleted = $loader->clear($file, $tableAlias);
+                $scenarioName = $this->extractScenarioName($file, $baseDirPath);
+                $deleted = $loader->clear($scenarioName, $table);
                 $totalDeleted += $deleted;
 
                 $io->out("  Deleted: {$deleted}");
@@ -324,16 +325,29 @@ TEXT;
     }
 
     /**
-     * ファイルパスからテーブル名を推測
+     * ファイルパスからシナリオ名を抽出
      *
-     * @param string $filePath YAMLファイルパス
-     * @return string テーブル名（エイリアス）
+     * @param string $filePath ファイルパス（絶対パス）
+     * @param string $baseDir ベースディレクトリ（絶対パス）
+     * @return string シナリオ名（拡張子なし）
      */
-    protected function resolveTableName(string $filePath): string
+    protected function extractScenarioName(string $filePath, string $baseDir): string
     {
-        $basename = basename($filePath, '.' . pathinfo($filePath, PATHINFO_EXTENSION));
+        // ベースディレクトリからの相対パスを取得
+        $relativePath = substr($filePath, strlen($baseDir) + 1);
 
-        // If it's a directory, use the directory name
-        return Inflector::tableize($basename);
+        // ディレクトリ区切り文字で分割
+        $parts = explode(DS, $relativePath);
+
+        // 最後のパートから拡張子を除去
+        $lastPart = array_pop($parts);
+        $scenarioName = basename($lastPart, '.' . pathinfo($lastPart, PATHINFO_EXTENSION));
+
+        // ディレクトリが複数ある場合は、最初のディレクトリ（シナリオ名）を返す
+        if (!empty($parts)) {
+            return $parts[0];
+        }
+
+        return $scenarioName;
     }
 }
