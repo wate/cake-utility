@@ -54,4 +54,4 @@ Record and manage audit tRails with automatic model tracking and manual controll
 - Retention-based auto-purge with CSV archive
 - CLI purge command
 
-[Read more →](docs/audit-log.md)
+[Read more →](docs/audit_log.md)
