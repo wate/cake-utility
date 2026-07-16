@@ -1,14 +1,17 @@
 <?php
+
 declare(strict_types=1);
 
 namespace CakeUtility;
 
 use Cake\Console\CommandCollection;
 use Cake\Core\BasePlugin;
+use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
 use Cake\Core\PluginApplicationInterface;
 use Cake\Http\MiddlewareQueue;
 use Cake\Routing\RouteBuilder;
+use CakeUtility\Command\AuditLogPurgeCommand;
 
 /**
  * Plugin for CakeUtility
@@ -26,7 +29,9 @@ class CakeUtilityPlugin extends BasePlugin
      */
     public function bootstrap(PluginApplicationInterface $app): void
     {
-        // remove this method hook if you don't need it
+        /** @var array<string, mixed> $config */
+        $config = include __DIR__ . '/../config/cake_utility.php';
+        Configure::write($config);
     }
 
     /**
@@ -75,8 +80,7 @@ class CakeUtilityPlugin extends BasePlugin
      */
     public function console(CommandCollection $commands): CommandCollection
     {
-        // Add your commands here
-        // remove this method hook if you don't need it
+        $commands->add('audit_log_purge', AuditLogPurgeCommand::class);
 
         $commands = parent::console($commands);
 

@@ -42,3 +42,16 @@ Convert YAML test/seed data to database-compatible format with support for:
 Load structured test scenarios from YAML files.
 
 [Read more →](docs/scenario_loader.md)
+
+### Audit Log
+
+Record and manage audit tRails with automatic model tracking and manual controller logging.
+
+- Behavior-based auto recording (create/update/delete)
+- Component-based explicit recording (login/logout/etc.)
+- Automatic IP/User-Agent collection
+- Sanitize callback for PII masking
+- Retention-based auto-purge with CSV archive
+- CLI purge command
+
+[Read more →](docs/audit-log.md)

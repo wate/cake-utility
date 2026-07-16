@@ -10,7 +10,11 @@ declare(strict_types=1);
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
+use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
+
+// Set minimal App configuration for Controller/Response compatibility
+Configure::write('App.encoding', 'UTF-8');
 
 // Setup a dedicated SQLite database for plugin integration tests
 $dbPath = dirname(__DIR__) . '/tests/test_scenario.sqlite';

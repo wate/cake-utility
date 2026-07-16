@@ -61,3 +61,28 @@ CREATE TABLE shop_products (
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
+-- AuditLog テスト用テーブル（AuditLogWriter/AuditLogBehavior/AuditLogComponent/AuditLogPurgeService 共通）
+CREATE TABLE audit_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NULL,
+    category VARCHAR(50) NOT NULL,
+    action VARCHAR(50) NOT NULL,
+    target_id VARCHAR(50) NULL,
+    ip_address VARCHAR(45) NULL,
+    user_agent VARCHAR(255) NULL,
+    context TEXT NULL,
+    created DATETIME NOT NULL
+);
+
+-- Behaviorテスト用テーブル（auditLogSanitizeコールバックのテストを含む）
+CREATE TABLE test_articles (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title VARCHAR(255) NOT NULL,
+    body TEXT NULL,
+    author VARCHAR(100) NULL,
+    email VARCHAR(255) NULL,
+    password VARCHAR(255) NULL,
+    created DATETIME NOT NULL,
+    modified DATETIME NOT NULL
+);
+
