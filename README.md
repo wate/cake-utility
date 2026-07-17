@@ -55,3 +55,14 @@ Record and manage audit tRails with automatic model tracking and manual controll
 - CLI purge command
 
 [Read more →](docs/audit_log.md)
+
+### ActionModal
+
+Confirmation dialog component using Bootstrap 4/AdminLTE 3 modals.
+
+- Helper: Trigger button output with data-* attributes
+- Element: Modal markup with automatic CSRF token embedding
+- JS: Pure JS + HTMX modal control
+- i18n: English source + Japanese .po included
+
+[Read more →](docs/action_modal.md)
