@@ -43,4 +43,9 @@ return [
             // 未指定の category は csvRetentionDays(365日) が適用される
         ],
     ],
+
+    'Htmx' => [
+        // HTMXリクエスト時にレイアウトを自動無効化する
+        'disableAutoLayout' => true,
+    ],
 ];

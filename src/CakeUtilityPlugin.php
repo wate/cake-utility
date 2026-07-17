@@ -12,6 +12,7 @@ use Cake\Core\PluginApplicationInterface;
 use Cake\Http\MiddlewareQueue;
 use Cake\Routing\RouteBuilder;
 use CakeUtility\Command\AuditLogPurgeCommand;
+use CakeUtility\Event\HtmxLayoutListener;
 
 /**
  * Plugin for CakeUtility
@@ -32,6 +33,13 @@ class CakeUtilityPlugin extends BasePlugin
         /** @var array<string, mixed> $config */
         $config = include __DIR__ . '/../config/cake_utility.php';
         Configure::write($config);
+
+        // HTMXリクエスト時にレイアウトを自動無効化（設定で無効化可能）
+        /** @var array<string, mixed> $htmxConfig */
+        $htmxConfig = Configure::read('Htmx');
+        if (($htmxConfig['disableAutoLayout'] ?? true) === true) {
+            $app->getEventManager()->on(new HtmxLayoutListener());
+        }
     }
 
     /**

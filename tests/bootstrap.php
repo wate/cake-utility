@@ -10,11 +10,25 @@ declare(strict_types=1);
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
+use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
+use Cake\Routing\Router;
 
 // Set minimal App configuration for Controller/Response compatibility
 Configure::write('App.encoding', 'UTF-8');
+Cache::setConfig('_cake_translations_', [
+    'className' => 'File',
+    'path' => sys_get_temp_dir() . '/cake_utility_test_cache',
+    'prefix' => 'cake_utility_translations_',
+    'duration' => '+1 hour',
+]);
+
+// Initialize Router with DashedRoute for URL generation (matching production default)
+use Cake\Routing\Route\DashedRoute;
+
+Router::reload();
+Router::createRouteBuilder('/')->setRouteClass(DashedRoute::class)->connect('/{controller}/{action}/*', []);
 
 // Setup a dedicated SQLite database for plugin integration tests
 $dbPath = dirname(__DIR__) . '/tests/test_scenario.sqlite';
