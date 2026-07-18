@@ -1,68 +1,144 @@
 CakeUtility plugin for CakePHP
 ==============================
 
-A collection of utility components for CakePHP applications.
+CakePHP 5向けユーティリティプラグインです。監査ログ、インポートワークフロー、ActionModal、YAMLローダー、シナリオローダー、ロケール自動切り替えの各機能を提供します。
 
-Installation
+インストール
 -------------------------
 
-You can install this plugin into your CakePHP application using [composer](https://getcomposer.org).
+Packagistに公開していないため、GitHubリポジトリを直接指定してインストールします。
 
-The recommended way to install composer packages is:
+### 1. `composer.json` にリポジトリを追加
 
+```json
+{
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/wate/cake-utility.git"
+        }
+    ],
+    "require": {
+        "wate/cake-utility": "dev-main"
+    }
+}
 ```
-composer require wate/cake-utility
+
+### 2. Composer でインストール
+
+```bash
+composer require wate/cake-utility:dev-main
 ```
 
-Features
+### 3. プラグインを有効化
+
+`config/plugins.php` に追加:
+
+```php
+CakeUtility::class,
+```
+
+Excel(XLSX)のインポートに対応する場合(オプション):
+
+```bash
+composer require phpoffice/phpspreadsheet
+```
+
+機能一覧
 -------------------------
 
-### Locale Middleware
+### Import Workflow(インポートワークフロー)
 
-Automatically detect and set application locale based on:
+CSV/Excelファイルの一括インポートを共通化するワークフローです。プレビュー、バリデーション、upsertに対応しています。
 
-- URL parameters (`?lang=en_US`)
-- Stored cookie preference
-- Browser Accept-Language header (RFC 9110 compliant)
+- CSVパース: Shift_JISの5C問題対策、エンコーディング自動検出
+- Excel(XLSX)対応: PhpSpreadsheetをオプション依存として同梱
+- パイプライン: rowFilter → lookup(FK一括解決) → columnMap → fixed → beforeMarshal → validate → beforeSave → afterSave
+- upsert、バッチ分割保存、行フィルター
+- `preview()` + `execute()` の分割パターン
+- 結果表示用の共有Viewエレメント
 
-[Read more →](docs/locale_middleware.md)
+[詳細 →](docs/import_workflow.md)
 
-### YAML Loader
+### Audit Log(監査ログ)
 
-Convert YAML test/seed data to database-compatible format with support for:
+変更履歴を自動記録する監査ログ機能です。BehaviorによるModel層の自動記録と、ComponentによるController層からの明示的記録の2経路を備えています。
 
-- Record references (`ref:`)
-- Dynamic date/time (`@now`, `@today`)
-- Upsert operations (`_keys`)
+- Behavior: 作成/更新/削除を自動検知
+- Component: ログイン/ログアウト等の明示的記録
+- IPアドレス・UserAgentの自動取得
+- サニタイズコールバック(PIIマスキング)
+- 保持期間ベースの自動パージ + CSVアーカイブ
+- カテゴリー別保持期間設定
+- CLIパージコマンド(--force対応)
 
-[Read more →](docs/yaml_loader.md)
+[詳細 →](docs/audit_log.md)
 
-### Scenario Loader
+### ActionModal(確認ダイアログ)
 
-Load structured test scenarios from YAML files.
+Bootstrap 4/AdminLTE 3のモーダルを使った確認ダイアログです。
 
-[Read more →](docs/scenario_loader.md)
+- Helper: data-* 属性付きトリガーボタンを出力
+- Element: CSRFトークンを自動埋め込みするモーダルマークアップ
+- JS: ピュアJS + HTMXでモーダル制御
+- i18n対応(英語ソース + 日本語.po)
+- HTMXによる動的本文読み込み対応
+- 操作種別ごとにCSSクラスをカスタマイズ可能
 
-### Audit Log
+[詳細 →](docs/action_modal.md)
 
-Record and manage audit tRails with automatic model tracking and manual controller logging.
+### YAML Loader(YAMLローダー)
 
-- Behavior-based auto recording (create/update/delete)
-- Component-based explicit recording (login/logout/etc.)
-- Automatic IP/User-Agent collection
-- Sanitize callback for PII masking
-- Retention-based auto-purge with CSV archive
-- CLI purge command
+YAML形式のテストデータやシードデータをDB投入可能な形式に変換します。
 
-[Read more →](docs/audit_log.md)
+- `ref:` プレフィックスによるFK参照解決
+- `@now`/`@today` などの動的日時指定
+- スキーマベースの型変換(boolean/JSON/integer/datetime)
+- インラインマップ・コールバック形式のルックアップ対応
 
-### ActionModal
+[詳細 →](docs/yaml_loader.md)
 
-Confirmation dialog component using Bootstrap 4/AdminLTE 3 modals.
+### Scenario Loader & CLI(シナリオローダー)
 
-- Helper: Trigger button output with data-* attributes
-- Element: Modal markup with automatic CSRF token embedding
-- JS: Pure JS + HTMX modal control
-- i18n: English source + Japanese .po included
+YAMLシナリオファイルからテストデータを冪等にデータベースに投入・削除します。
 
-[Read more →](docs/action_modal.md)
+- 依存関係グラフの構築とトポロジカルソート
+- `_keys` ベースの冪等upsert(更新or新規作成)
+- ファイルを跨いだ `_ref` 参照マップ管理
+- テーブル単位のトランザクション制御
+- CLIコマンド: `bin/cake scenario load/clear`(`--base-dir` オプション対応)
+- デフォルトベースディレクトリは `Configure::write('Scenario.baseDir')` で設定可能
+
+[詳細 →](docs/scenario_loader.md)
+
+### Locale Middleware(ロケール自動切り替え)
+
+ブラウザの言語設定に基づいてアプリケーションのロケールを自動的に切り替えます。
+
+優先順位:
+
+1. URLパラメータ(`?lang=en_US`)
+2. Cookie(前回の選択を保存)
+3. ブラウザのAccept-Languageヘッダー(RFC 9110準拠)
+4. アプリケーションのデフォルトロケール(フォールバック)
+
+[詳細 →](docs/locale_middleware.md)
+
+### 設定
+
+各機能の設定は `config/cake_utility.php` で管理します。
+
+- AuditLog: 保持期間、CSV出力先、カテゴリー別設定
+- HTMX: レイアウト自動無効化のON/OFF
+- ScenarioLoader: デフォルトベースディレクトリ
+
+[詳細 →](docs/configuration.md)
+
+開発
+-------------------------
+
+```bash
+# プラグイン単体のテスト実行
+cd plugins/CakeUtility
+composer test
+```
