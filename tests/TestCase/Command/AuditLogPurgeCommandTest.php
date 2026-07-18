@@ -114,7 +114,7 @@ class AuditLogPurgeCommandTest extends TestCase
         $exitCode = $this->command->run(['--connection=test'], $this->io);
 
         $this->assertSame(Command::CODE_SUCCESS, $exitCode);
-        $this->assertStringContainsString('パージ完了', implode("\n", $this->out->messages()));
+        $this->assertStringContainsString('Purge completed:', implode("\n", $this->out->messages()));
 
         // -100日分は削除されている
         $connection = ConnectionManager::get('test');

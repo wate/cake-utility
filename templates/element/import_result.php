@@ -45,52 +45,52 @@ foreach ($rowErrors as $err) {
             </p>
         </div>
 
-        <?php if (!empty($columns) && (!empty($savedEntities) || !empty($source))) : ?>
+        <?php if (!empty($columns) && (!empty($savedEntities) || !empty($source))) { ?>
         <table class="table table-bordered table-striped table-sm mt-3">
             <thead>
                 <tr>
-                    <?php foreach ($columns as $col) : ?>
+                    <?php foreach ($columns as $col) { ?>
                         <th><?= h($col) ?></th>
-                    <?php endforeach; ?>
+                    <?php } ?>
                     <th><?= __d('cake_utility', 'Status') ?></th>
                 </tr>
             </thead>
             <tbody>
-                <?php if ($source !== null) : ?>
-                    <?php foreach ($source as $index => $row) :
+                <?php if ($source !== null) { ?>
+                    <?php foreach ($source as $index => $row) {
                         $lineNumber = $index + 2;
                         $hasError = isset($errorMap[$lineNumber]);
                         ?>
                     <tr class="<?= $hasError ? 'table-danger' : 'table-success' ?>">
-                        <?php foreach ($columns as $col) : ?>
+                        <?php foreach ($columns as $col) { ?>
                             <td><?= h($row[$col] ?? '') ?></td>
-                        <?php endforeach; ?>
+                        <?php } ?>
                         <td>
-                            <?php if ($hasError) : ?>
+                            <?php if ($hasError) { ?>
                                 <span class="badge badge-danger"><?= h($errorMap[$lineNumber]) ?></span>
-                            <?php else : ?>
+                            <?php } else { ?>
                                 <span class="badge badge-success"><?= __d('cake_utility', 'Saved') ?></span>
-                            <?php endif; ?>
+                            <?php } ?>
                         </td>
                     </tr>
-                    <?php endforeach; ?>
-                <?php else : ?>
-                    <?php foreach ($savedEntities as $entity) : ?>
+                    <?php } ?>
+                <?php } else { ?>
+                    <?php foreach ($savedEntities as $entity) { ?>
                     <tr class="table-success">
-                        <?php foreach ($columns as $col) : ?>
+                        <?php foreach ($columns as $col) { ?>
                             <td><?= h($entity->get($col) ?? '') ?></td>
-                        <?php endforeach; ?>
+                        <?php } ?>
                         <td>
                             <span class="badge badge-success"><?= __d('cake_utility', 'Saved') ?></span>
                         </td>
                     </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+                    <?php } ?>
+                <?php } ?>
             </tbody>
         </table>
-        <?php endif; ?>
+        <?php } ?>
 
-        <?php if ($result->errorCount() > 0) : ?>
+        <?php if ($result->errorCount() > 0) { ?>
         <div class="mt-3">
             <h5><?= __d('cake_utility', 'Error Details') ?></h5>
             <div class="table-responsive">
@@ -102,16 +102,16 @@ foreach ($rowErrors as $err) {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($rowErrors as $error) : ?>
+                        <?php foreach ($rowErrors as $error) { ?>
                         <tr class="table-danger">
                             <td><?= h($error['row']) ?></td>
                             <td><?= h($error['message']) ?></td>
                         </tr>
-                        <?php endforeach; ?>
+                        <?php } ?>
                     </tbody>
                 </table>
             </div>
         </div>
-        <?php endif; ?>
+        <?php } ?>
     </div>
 </div>

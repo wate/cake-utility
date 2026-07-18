@@ -40,40 +40,40 @@ foreach ($rowErrors as $err) {
             </p>
         </div>
 
-        <?php if (!empty($columns) && !empty($source)) : ?>
+        <?php if (!empty($columns) && !empty($source)) { ?>
         <table class="table table-bordered table-striped table-sm mt-3">
             <thead>
                 <tr>
-                    <?php foreach ($columns as $col) : ?>
+                    <?php foreach ($columns as $col) { ?>
                         <th><?= h($col) ?></th>
-                    <?php endforeach; ?>
+                    <?php } ?>
                     <th><?= __d('cake_utility', 'Status') ?></th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($source as $index => $row) :
+                <?php foreach ($source as $index => $row) {
                     $lineNumber = $index + 2; // ヘッダー行があるため+2
                     $hasError = isset($errorMap[$lineNumber]);
                     ?>
                 <tr class="<?= $hasError ? 'table-danger' : '' ?>">
-                    <?php foreach ($columns as $col) : ?>
+                    <?php foreach ($columns as $col) { ?>
                         <td><?= h($row[$col] ?? '') ?></td>
-                    <?php endforeach; ?>
+                    <?php } ?>
                     <td>
-                        <?php if ($hasError) : ?>
+                        <?php if ($hasError) { ?>
                             <span class="badge badge-danger">
                                 <?= h($errorMap[$lineNumber]) ?>
                             </span>
-                        <?php else : ?>
+                        <?php } else { ?>
                             <span class="badge badge-success">
                                 <?= __d('cake_utility', 'OK') ?>
                             </span>
-                        <?php endif; ?>
+                        <?php } ?>
                     </td>
                 </tr>
-                <?php endforeach; ?>
+                <?php } ?>
             </tbody>
         </table>
-        <?php endif; ?>
+        <?php } ?>
     </div>
 </div>

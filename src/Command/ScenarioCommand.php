@@ -8,8 +8,11 @@ use Cake\Command\Command;
 use Cake\Console\Arguments;
 use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
+use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 use CakeUtility\Yaml\ScenarioLoader;
+
+use function Cake\I18n\__d;
 
 /**
  * Scenario コマンド
@@ -27,11 +30,6 @@ use CakeUtility\Yaml\ScenarioLoader;
 class ScenarioCommand extends Command
 {
     /**
-     * ベースディレクトリのデフォルト値
-     */
-    public const DEFAULT_BASE_DIR = 'config/Seeds/data';
-
-    /**
      * コマンドの名前
      *
      * @return string
@@ -48,7 +46,7 @@ class ScenarioCommand extends Command
      */
     public function description(): string
     {
-        return 'Load or clear test scenario seed data from YAML files.';
+        return __d('cake_utility', 'Load or clear test scenario seed data from YAML files.');
     }
 
     /**
@@ -92,20 +90,20 @@ TEXT;
     {
         $parser
             ->addArgument('action', [
-                'help' => 'Action: load or clear.',
+                'help' => __d('cake_utility', 'Action: load or clear.'),
                 'required' => true,
             ])
             ->addArgument('scenario', [
-                'help' => 'Scenario name (file or directory name). Omit to load/clear all.',
+                'help' => __d('cake_utility', 'Scenario name (file or directory name). Omit to load/clear all scenarios.'),
                 'required' => false,
             ])
             ->addArgument('table', [
-                'help' => 'Target table name. Omit to process all tables.',
+                'help' => __d('cake_utility', 'Target table name. Omit to process all tables.'),
                 'required' => false,
             ])
             ->addOption('base-dir', [
-                'help' => 'Base directory containing YAML scenario files',
-                'default' => self::DEFAULT_BASE_DIR,
+                'help' => __d('cake_utility', 'Base directory containing YAML scenario files'),
+                'default' => Configure::read('Scenario.baseDir', 'config/Seeds/data'),
             ]);
 
         return $parser;
@@ -136,7 +134,7 @@ TEXT;
         $baseDirPath = $this->resolveBaseDir($baseDir);
 
         if (!is_dir($baseDirPath)) {
-            $io->error("Base directory not found: {$baseDirPath}");
+            $io->error(__d('cake_utility', 'Base directory not found: {0}', $baseDirPath));
             return self::CODE_ERROR;
         }
 
@@ -144,18 +142,18 @@ TEXT;
         $scenarioFiles = $this->getScenarioFiles($baseDirPath, $scenario);
 
         if (empty($scenarioFiles)) {
-            $io->warning('No scenario files found.');
+            $io->warning(__d('cake_utility', 'No scenario files found.'));
             return self::CODE_ERROR;
         }
 
         $io->out('==================================================');
-        $io->out("Scenario: {$action}");
-        $io->out("Base directory: {$baseDirPath}");
+        $io->out(__d('cake_utility', 'Action: {0}', $action));
+        $io->out(__d('cake_utility', 'Base directory: {0}', $baseDirPath));
         if ($scenario) {
-            $io->out("Scenario: {$scenario}");
+            $io->out(__d('cake_utility', 'Scenario: {0}', $scenario));
         }
         if ($table) {
-            $io->out("Table: {$table}");
+            $io->out(__d('cake_utility', 'Table: {0}', $table));
         }
         $io->out('--------------------------------------------------');
 
@@ -251,7 +249,7 @@ TEXT;
 
         foreach ($files as $file) {
             $relativePath = str_replace(getcwd() . DS, '', $file);
-            $io->out("Processing: {$relativePath}");
+            $io->out(__d('cake_utility', 'Processing: {0}', $relativePath));
 
             try {
                 $scenarioName = $this->extractScenarioName($file, $baseDirPath);
@@ -262,15 +260,15 @@ TEXT;
                 $totalInserted += $inserted;
                 $totalUpdated += $updated;
 
-                $io->out("  Inserted: {$inserted}, Updated: {$updated}");
+                $io->out(__d('cake_utility', '  Inserted: {0}, Updated: {1}', $inserted, $updated));
             } catch (\RuntimeException $e) {
-                $io->error("  Error: {$e->getMessage()}");
+                $io->error(__d('cake_utility', '  Error: {0}', $e->getMessage()));
                 $error = true;
             }
         }
 
         $io->out('--------------------------------------------------');
-        $io->out("Total - Inserted: {$totalInserted}, Updated: {$totalUpdated}");
+        $io->out(__d('cake_utility', 'Total - Inserted: {0}, Updated: {1}', $totalInserted, $totalUpdated));
 
         if ($error) {
             return self::CODE_ERROR;
@@ -291,7 +289,7 @@ TEXT;
     protected function executeClear(array $files, ?string $table, string $baseDirPath, ConsoleIo $io): int
     {
         if (empty($files)) {
-            $io->warning('No YAML files found.');
+            $io->warning(__d('cake_utility', 'No YAML files found.'));
             return self::CODE_SUCCESS;
         }
         $loader = new ScenarioLoader($baseDirPath);
@@ -300,22 +298,22 @@ TEXT;
 
         foreach ($files as $file) {
             $relativePath = str_replace(getcwd() . DS, '', $file);
-            $io->out("Processing: {$relativePath}");
+            $io->out(__d('cake_utility', 'Processing: {0}', $relativePath));
 
             try {
                 $scenarioName = $this->extractScenarioName($file, $baseDirPath);
                 $deleted = $loader->clear($scenarioName, $table);
                 $totalDeleted += $deleted;
 
-                $io->out("  Deleted: {$deleted}");
+                $io->out(__d('cake_utility', '  Deleted: {0}', $deleted));
             } catch (\RuntimeException $e) {
-                $io->error("  Error: {$e->getMessage()}");
+                $io->error(__d('cake_utility', '  Error: {0}', $e->getMessage()));
                 $error = true;
             }
         }
 
         $io->out('--------------------------------------------------');
-        $io->out("Total - Deleted: {$totalDeleted}");
+        $io->out(__d('cake_utility', 'Total - Deleted: {0}', $totalDeleted));
 
         if ($error) {
             return self::CODE_ERROR;

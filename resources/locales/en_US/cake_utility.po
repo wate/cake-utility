@@ -1,246 +1,245 @@
-# LANGUAGE translation of CakePHP Application
+# English translation of CakePHP Application
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PROJECT VERSION\n"
+"Project-Id-Version: CakeUtility\n"
 "POT-Creation-Date: 2026-07-18 12:02+0900\n"
-"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"PO-Revision-Date: 2026-07-18 12:00+0900\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"Language-Team: English <en_US@<EMAIL@ADDRESS>>\n"
+"Language: en_US\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: src/Import/CsvRowReader.php:59
 #: src/Import/CsvRowReader.php:73
 #: src/Import/SpreadsheetRowReader.php:64
 msgid "Could not open file: {0}"
-msgstr ""
+msgstr "Could not open file: {0}"
 
 #: src/Import/CsvRowReader.php:85
 msgid "Could not create encoding filter: {0}"
-msgstr ""
+msgstr "Could not create encoding filter: {0}"
 
 #: src/Import/CsvRowReader.php:99
 msgid "CSV file is empty"
-msgstr ""
+msgstr "CSV file is empty"
 
 #: src/Import/CsvRowReader.php:160
 #: src/Import/CsvRowReader.php:171
 #: src/Import/SpreadsheetRowReader.php:115
 #: src/Import/SpreadsheetRowReader.php:129
 msgid "File is not open. Call open() first"
-msgstr ""
+msgstr "File is not open. Call open() first"
 
 #: src/Import/CsvRowReader.php:191
 #: src/Import/SpreadsheetRowReader.php:161
 msgid "Column count mismatch (expected: {0}, actual: {1})"
-msgstr ""
+msgstr "Column count mismatch (expected: {0}, actual: {1})"
 
 #: src/Import/ImportWorkflow.php:281
 msgid "Failed to save record"
-msgstr ""
+msgstr "Failed to save record"
 
 #: src/Import/SpreadsheetRowReader.php:47
 msgid "PhpSpreadsheet is required. Run: composer require phpoffice/phpspreadsheet"
-msgstr ""
+msgstr "PhpSpreadsheet is required. Run: composer require phpoffice/phpspreadsheet"
 
 #: src/Import/SpreadsheetRowReader.php:74
 msgid "Sheet not found: {0}"
-msgstr ""
+msgstr "Sheet not found: {0}"
 
 #: src/View/Helper/ActionModalHelper.php:53
 #: templates/element/action_modal.php:22
 msgid "Execute"
-msgstr ""
+msgstr "Execute"
 
 #: src/View/Helper/ActionModalHelper.php:58
 #: templates/element/action_modal.php:20
 msgid "Confirm"
-msgstr ""
+msgstr "Confirm"
 
 #: src/View/Helper/ActionModalHelper.php:67
 #: templates/element/action_modal.php:32
 msgid "Cancel"
-msgstr ""
+msgstr "Cancel"
 
 #: src/View/Helper/ActionModalHelper.php:119
 msgid "Delete"
-msgstr ""
+msgstr "Delete"
 
 #: src/View/Helper/ActionModalHelper.php:120
 msgid "Delete Confirmation"
-msgstr ""
+msgstr "Delete Confirmation"
 
 #: templates/element/action_modal.php:26
 msgid "Are you sure you want to {action} {name}?"
-msgstr ""
+msgstr "Are you sure you want to {action} {name}?"
 
 #: templates/element/action_modal.php:27
 msgid "Are you sure you want to {action}?"
-msgstr ""
+msgstr "Are you sure you want to {action}?"
 
 #: templates/element/import_preview.php:31
 msgid "Import Preview"
-msgstr ""
+msgstr "Import Preview"
 
 #: templates/element/import_preview.php:38
 msgid "{1} error(s) (Total: {0})"
-msgstr ""
+msgstr "{1} error(s) (Total: {0})"
 
 #: templates/element/import_preview.php:50
 #: templates/element/import_result.php:55
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 #: templates/element/import_preview.php:69
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: templates/element/import_result.php:36
 msgid "Import Result"
-msgstr ""
+msgstr "Import Result"
 
 #: templates/element/import_result.php:43
 msgid "{1} succeeded, {2} errors (Total: {0})"
-msgstr ""
+msgstr "{1} succeeded, {2} errors (Total: {0})"
 
 #: templates/element/import_result.php:72
 #: templates/element/import_result.php:84
 msgid "Saved"
-msgstr ""
+msgstr "Saved"
 
 #: templates/element/import_result.php:95
 msgid "Error Details"
-msgstr ""
+msgstr "Error Details"
 
 #: templates/element/import_result.php:100
 msgid "Row"
-msgstr ""
+msgstr "Row"
 
 #: templates/element/import_result.php:101
 msgid "Error Message"
-msgstr ""
+msgstr "Error Message"
 
 #: src/Command/AuditLogPurgeCommand.php:37
 msgid "Force execution (skip confirmation prompt)"
-msgstr ""
+msgstr "Force execution (skip confirmation prompt)"
 
 #: src/Command/AuditLogPurgeCommand.php:40
 msgid "Database connection name (default: default)"
-msgstr ""
+msgstr "Database connection name (default: default)"
 
 #: src/Command/AuditLogPurgeCommand.php:44
 msgid "Export expired audit logs to CSV and delete from database"
-msgstr ""
+msgstr "Export expired audit logs to CSV and delete from database"
 
 #: src/Command/AuditLogPurgeCommand.php:63
 msgid "Purge completed: {0} exported, {1} purged"
-msgstr ""
+msgstr "Purge completed: {0} exported, {1} purged"
 
 #: src/Command/ScenarioCommand.php:50
 msgid "Load or clear test scenario seed data from YAML files."
-msgstr ""
+msgstr "Load or clear test scenario seed data from YAML files."
 
 #: src/Command/ScenarioCommand.php:89
 msgid "Action: load or clear."
-msgstr ""
+msgstr "Action: load or clear."
 
 #: src/Command/ScenarioCommand.php:93
 msgid "Scenario name (file or directory name). Omit to load/clear all scenarios."
-msgstr ""
+msgstr "Scenario name (file or directory name). Omit to load/clear all scenarios."
 
 #: src/Command/ScenarioCommand.php:98
 msgid "Target table name. Omit to process all tables."
-msgstr ""
+msgstr "Target table name. Omit to process all tables."
 
 #: src/Command/ScenarioCommand.php:102
 msgid "Base directory containing YAML scenario files"
-msgstr ""
+msgstr "Base directory containing YAML scenario files"
 
 #: src/Command/ScenarioCommand.php:123
 msgid "Base directory not found: {0}"
-msgstr ""
+msgstr "Base directory not found: {0}"
 
 #: src/Command/ScenarioCommand.php:131
 #: src/Command/ScenarioCommand.php:307
 msgid "No scenario files found."
-msgstr ""
+msgstr "No scenario files found."
 
 #: src/Command/ScenarioCommand.php:136
 msgid "Action: {0}"
-msgstr ""
+msgstr "Action: {0}"
 
 #: src/Command/ScenarioCommand.php:137
 msgid "Base directory: {0}"
-msgstr ""
+msgstr "Base directory: {0}"
 
 #: src/Command/ScenarioCommand.php:139
 msgid "Scenario: {0}"
-msgstr ""
+msgstr "Scenario: {0}"
 
 #: src/Command/ScenarioCommand.php:142
 msgid "Table: {0}"
-msgstr ""
+msgstr "Table: {0}"
 
 #: src/Command/ScenarioCommand.php:164
 #: src/Command/ScenarioCommand.php:283
 msgid "Processing: {0}"
-msgstr ""
+msgstr "Processing: {0}"
 
 #: src/Command/ScenarioCommand.php:173
 msgid "  Inserted: {0}, Updated: {1}"
-msgstr ""
+msgstr "  Inserted: {0}, Updated: {1}"
 
 #: src/Command/ScenarioCommand.php:177
 #: src/Command/ScenarioCommand.php:290
 msgid "  Error: {0}"
-msgstr ""
+msgstr "  Error: {0}"
 
 #: src/Command/ScenarioCommand.php:182
 msgid "Total - Inserted: {0}, Updated: {1}"
-msgstr ""
+msgstr "Total - Inserted: {0}, Updated: {1}"
 
 #: src/Command/ScenarioCommand.php:287
 msgid "  Deleted: {0}"
-msgstr ""
+msgstr "  Deleted: {0}"
 
 #: src/Command/ScenarioCommand.php:295
 msgid "Total - Deleted: {0}"
-msgstr ""
+msgstr "Total - Deleted: {0}"
 
 #: src/Command/ScenarioCommand.php:305
 msgid "No YAML files found."
-msgstr ""
+msgstr "No YAML files found."
 
 #: src/Yaml/Loader.php:103
 msgid "Invalid datetime expression: {0}"
-msgstr ""
+msgstr "Invalid datetime expression: {0}"
 
 #: src/Yaml/Loader.php:229
 msgid "Reference \"{0}\" not found"
-msgstr ""
+msgstr "Reference \"{0}\" not found"
 
 #: src/Yaml/ScenarioLoader.php:207
 msgid "Failed to delete record at index {0} in {1}: {2}"
-msgstr ""
+msgstr "Failed to delete record at index {0} in {1}: {2}"
 
 #: src/Yaml/ScenarioLoader.php:292
 msgid "Failed to save record at index {0} in {1}: {2}"
-msgstr ""
+msgstr "Failed to save record at index {0} in {1}: {2}"
 
 #: src/Yaml/ScenarioLoader.php:588
 msgid "Circular dependency detected in YAML scenario files"
-msgstr ""
+msgstr "Circular dependency detected in YAML scenario files"
 
 #: src/Yaml/ScenarioLoader.php:651
 msgid "Scenario not found: {0} (tried in {1})"
-msgstr ""
+msgstr "Scenario not found: {0} (tried in {1})"
 
 #: src/Yaml/ScenarioLoader.php:664
 msgid "Scenario file not readable: {0}"
-msgstr ""
-
+msgstr "Scenario file not readable: {0}"

@@ -10,6 +10,8 @@ use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
 use CakeUtility\Audit\AuditLogPurgeService;
 
+use function Cake\I18n\__d;
+
 /**
  * AuditLogPurgeCommand
  *
@@ -38,14 +40,14 @@ class AuditLogPurgeCommand extends Command
         $parser->addOption('force', [
             'short' => 'f',
             'boolean' => true,
-            'help' => '強制実行（確認プロンプトをスキップする）',
+            'help' => __d('cake_utility', 'Force execution (skip confirmation prompt)'),
         ])->addOption('connection', [
             'short' => 'c',
-            'help' => '使用するDB接続名（デフォルト: default）',
+            'help' => __d('cake_utility', 'Database connection name (default: default)'),
             'default' => 'default',
         ]);
 
-        $parser->setDescription('保持期間超過の監査ログをCSV出力後、DBから削除する');
+        $parser->setDescription(__d('cake_utility', 'Export expired audit logs to CSV and delete from database'));
 
         return $parser;
     }
@@ -64,11 +66,9 @@ class AuditLogPurgeCommand extends Command
         $service = new AuditLogPurgeService($connectionName);
         $result = $service->purge();
 
-        $io->out(sprintf(
-            '<success>パージ完了: %d 件出力 / %d 件削除</success>',
-            $result['exported'],
-            $result['purged']
-        ));
+        $io->out(
+            '<success>' . __d('cake_utility', 'Purge completed: {0} exported, {1} purged', $result['exported'], $result['purged']) . '</success>'
+        );
 
         return static::CODE_SUCCESS;
     }

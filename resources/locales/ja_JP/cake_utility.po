@@ -83,3 +83,122 @@ msgstr "PhpSpreadsheetが必要です。composer require phpoffice/phpspreadshee
 
 msgid "Sheet not found: {0}"
 msgstr "シートが見つかりません: {0}"
+
+#: src/Command/AuditLogPurgeCommand.php:37
+msgid "Force execution (skip confirmation prompt)"
+msgstr "強制実行（確認プロンプトをスキップ）"
+
+#: src/Command/AuditLogPurgeCommand.php:40
+msgid "Database connection name (default: default)"
+msgstr "データベース接続名（デフォルト: default）"
+
+#: src/Command/AuditLogPurgeCommand.php:44
+msgid "Export expired audit logs to CSV and delete from database"
+msgstr "保持期間超過の監査ログをCSV出力後、DBから削除"
+
+#: src/Command/AuditLogPurgeCommand.php:63
+msgid "Purge completed: {0} exported, {1} purged"
+msgstr "パージ完了: {0}件出力 / {1}件削除"
+
+#: src/Command/ScenarioCommand.php:50
+msgid "Load or clear test scenario seed data from YAML files."
+msgstr "YAMLファイルからテストシナリオデータをロードまたは消去"
+
+#: src/Command/ScenarioCommand.php:89
+msgid "Action: load or clear."
+msgstr "アクション: load または clear"
+
+#: src/Command/ScenarioCommand.php:93
+msgid "Scenario name (file or directory name). Omit to load/clear all scenarios."
+msgstr "シナリオ名（ファイル名またはディレクトリ名）。省略時は全シナリオを対象"
+
+#: src/Command/ScenarioCommand.php:98
+msgid "Target table name. Omit to process all tables."
+msgstr "対象テーブル名。省略時は全テーブルを対象"
+
+#: src/Command/ScenarioCommand.php:102
+msgid "Base directory containing YAML scenario files"
+msgstr "YAMLシナリオファイルのベースディレクトリ"
+
+#: src/Command/ScenarioCommand.php:123
+msgid "Base directory not found: {0}"
+msgstr "ベースディレクトリが見つかりません: {0}"
+
+#: src/Command/ScenarioCommand.php:131
+#: src/Command/ScenarioCommand.php:307
+msgid "No scenario files found."
+msgstr "シナリオファイルが見つかりません。"
+
+#: src/Command/ScenarioCommand.php:136
+msgid "Action: {0}"
+msgstr "アクション: {0}"
+
+#: src/Command/ScenarioCommand.php:137
+msgid "Base directory: {0}"
+msgstr "ベースディレクトリ: {0}"
+
+#: src/Command/ScenarioCommand.php:139
+msgid "Scenario: {0}"
+msgstr "シナリオ: {0}"
+
+#: src/Command/ScenarioCommand.php:142
+msgid "Table: {0}"
+msgstr "テーブル: {0}"
+
+#: src/Command/ScenarioCommand.php:164
+#: src/Command/ScenarioCommand.php:283
+msgid "Processing: {0}"
+msgstr "処理中: {0}"
+
+#: src/Command/ScenarioCommand.php:173
+msgid "  Inserted: {0}, Updated: {1}"
+msgstr "  挿入: {0}, 更新: {1}"
+
+#: src/Command/ScenarioCommand.php:177
+#: src/Command/ScenarioCommand.php:290
+msgid "  Error: {0}"
+msgstr "  エラー: {0}"
+
+#: src/Command/ScenarioCommand.php:182
+msgid "Total - Inserted: {0}, Updated: {1}"
+msgstr "合計 - 挿入: {0}, 更新: {1}"
+
+#: src/Command/ScenarioCommand.php:287
+msgid "  Deleted: {0}"
+msgstr "  削除: {0}"
+
+#: src/Command/ScenarioCommand.php:295
+msgid "Total - Deleted: {0}"
+msgstr "合計 - 削除: {0}"
+
+#: src/Command/ScenarioCommand.php:305
+msgid "No YAML files found."
+msgstr "YAMLファイルが見つかりません。"
+
+#: src/Yaml/Loader.php:103
+msgid "Invalid datetime expression: {0}"
+msgstr "不正な日時表現です: {0}"
+
+#: src/Yaml/Loader.php:229
+msgid "Reference \"{0}\" not found"
+msgstr "参照 \"{0}\" が見つかりません"
+
+#: src/Yaml/ScenarioLoader.php:207
+msgid "Failed to delete record at index {0} in {1}: {2}"
+msgstr "{1}のインデックス{0}のレコード削除に失敗しました: {2}"
+
+#: src/Yaml/ScenarioLoader.php:292
+msgid "Failed to save record at index {0} in {1}: {2}"
+msgstr "{1}のインデックス{0}のレコード保存に失敗しました: {2}"
+
+#: src/Yaml/ScenarioLoader.php:588
+msgid "Circular dependency detected in YAML scenario files"
+msgstr "シナリオファイルに循環依存が検出されました"
+
+#: src/Yaml/ScenarioLoader.php:651
+msgid "Scenario not found: {0} (tried in {1})"
+msgstr "シナリオが見つかりません: {0}（検索先: {1}）"
+
+#: src/Yaml/ScenarioLoader.php:664
+msgid "Scenario file not readable: {0}"
+msgstr "シナリオファイルが読み取れません: {0}"

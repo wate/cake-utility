@@ -11,6 +11,8 @@ use RuntimeException;
 use DateTime;
 use Exception;
 
+use function Cake\I18n\__d;
+
 /**
  * Yaml Loader
  *
@@ -111,7 +113,7 @@ class Loader
             }
             return \DateTimeImmutable::createFromMutable($date);
         } catch (Exception $e) {
-            throw new RuntimeException(sprintf('Invalid datetime expression: %s', $value));
+            throw new RuntimeException(__d('cake_utility', 'Invalid datetime expression: {0}', $value));
         }
     }
 
@@ -226,7 +228,7 @@ class Loader
         if (is_string($value) && str_starts_with($value, 'ref:')) {
             $refName = substr($value, 4);
             if (!array_key_exists($refName, $refMap)) {
-                throw new RuntimeException(sprintf('Reference "%s" not found', $refName));
+                throw new RuntimeException(__d('cake_utility', 'Reference "{0}" not found', $refName));
             }
             return $refMap[$refName];
         }

@@ -26,7 +26,6 @@ return [
                 'logout' => 30,
                 'failed' => 30,
             ],
-            // 未指定の category/action は retentionDays(90日) が適用される
         ],
 
         // CSV出力先ディレクトリ
@@ -40,12 +39,23 @@ return [
             'auth' => [
                 '__default__' => 180,
             ],
-            // 未指定の category は csvRetentionDays(365日) が適用される
         ],
     ],
 
     'Htmx' => [
         // HTMXリクエスト時にレイアウトを自動無効化する
         'disableAutoLayout' => true,
+    ],
+
+    'I18n' => [
+        // デフォルトロケール
+        'defaultLocale' => 'ja_JP',
+        // サポートするロケール一覧
+        'supportedLocales' => ['ja_JP', 'en_US'],
+    ],
+
+    'Scenario' => [
+        // シナリオファイルのベースディレクトリ（ScenarioLoader のデフォルトパス）
+        'baseDir' => 'config/Seeds/data',
     ],
 ];

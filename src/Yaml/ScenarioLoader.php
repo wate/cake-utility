@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CakeUtility\Yaml;
 
+use Cake\Core\Configure;
 use Cake\ORM\Table;
 use Cake\ORM\Locator\TableLocator;
 use Cake\ORM\Exception\PersistenceFailedException;
@@ -11,6 +12,8 @@ use Cake\Datasource\EntityInterface;
 use Cake\Datasource\ConnectionManager;
 use Cake\Utility\Inflector;
 use RuntimeException;
+
+use function Cake\I18n\__d;
 
 /**
  * ScenarioLoader: Orchestrates the loading of YAML scenario data into the database.
@@ -46,13 +49,18 @@ class ScenarioLoader
     /**
      * Constructor.
      *
-     * @param string $basePath Base directory path for scenario files.
+     * @param string|null $basePath Base directory path for scenario files.
+     *   null の場合は `Configure::read('Scenario.baseDir')` から読み込む。
+     *   それも未設定の場合は '{CACHE}scenarios' を使用する。
      * @param TableLocator|null $tableLocator Optional TableLocator instance.
      * @param string $connectionName Connection name for table resolution.
      */
-    public function __construct(string $basePath, ?TableLocator $tableLocator = null, string $connectionName = 'default')
+    public function __construct(?string $basePath = null, ?TableLocator $tableLocator = null, string $connectionName = 'default')
     {
-        $this->basePath = rtrim($basePath, DIRECTORY_SEPARATOR);
+        $resolvedPath = $basePath
+            ?? Configure::read('Scenario.baseDir')
+            ?? CACHE . 'scenarios';
+        $this->basePath = rtrim($resolvedPath, DS);
         $this->tableLocator = $tableLocator ?? new TableLocator();
         $this->connectionName = $connectionName;
     }
@@ -211,12 +219,7 @@ class ScenarioLoader
                     $deleted++;
                 } catch (\InvalidArgumentException $e) {
                     throw new RuntimeException(
-                        sprintf(
-                            'Failed to delete record at index %d in %s: %s',
-                            $i,
-                            $filePath,
-                            $e->getMessage()
-                        )
+                        __d('cake_utility', 'Failed to delete record at index {0} in {1}: {2}', $i, $filePath, $e->getMessage())
                     );
                 }
 
@@ -287,12 +290,7 @@ class ScenarioLoader
             $saved = $table->saveOrFail($entity);
         } catch (PersistenceFailedException $e) {
             throw new RuntimeException(
-                sprintf(
-                    'Failed to save record at index %d in %s: %s',
-                    $index,
-                    $filePath,
-                    $e->getMessage()
-                )
+                __d('cake_utility', 'Failed to save record at index {0} in {1}: {2}', (string)$index, $filePath, $e->getMessage())
             );
         }
 
@@ -579,7 +577,7 @@ class ScenarioLoader
 
         // Check for circular dependencies
         if (count($sorted) !== count($yamlFiles)) {
-            throw new RuntimeException('Circular dependency detected in YAML scenario files');
+            throw new RuntimeException(__d('cake_utility', 'Circular dependency detected in YAML scenario files'));
         }
 
         return $sorted;
@@ -625,24 +623,26 @@ class ScenarioLoader
     protected function resolvePath(string $scenarioName): string
     {
         // Try with .yaml extension
-        $yamlPath = $this->basePath . DIRECTORY_SEPARATOR . $scenarioName . '.yaml';
+        $yamlPath = $this->basePath . DS . $scenarioName . '.yaml';
         if (is_file($yamlPath)) {
             return $yamlPath;
         }
 
         // Try with .yml extension
-        $ymlPath = $this->basePath . DIRECTORY_SEPARATOR . $scenarioName . '.yml';
+        $ymlPath = $this->basePath . DS . $scenarioName . '.yml';
         if (is_file($ymlPath)) {
             return $ymlPath;
         }
 
         // Try as directory
-        $dirPath = $this->basePath . DIRECTORY_SEPARATOR . $scenarioName;
+        $dirPath = $this->basePath . DS . $scenarioName;
         if (is_dir($dirPath)) {
             return $dirPath;
         }
 
-        throw new RuntimeException("Scenario not found: {$scenarioName} (tried in {$this->basePath})");
+        throw new RuntimeException(
+            __d('cake_utility', 'Scenario not found: {0} (tried in {1})', $scenarioName, $this->basePath)
+        );
     }
 
     /**
@@ -655,7 +655,9 @@ class ScenarioLoader
     protected function parseYaml(string $filePath): array
     {
         if (!is_readable($filePath)) {
-            throw new RuntimeException("Scenario file not readable: {$filePath}");
+            throw new RuntimeException(
+                __d('cake_utility', 'Scenario file not readable: {0}', $filePath)
+            );
         }
 
         $loader = new Loader();

@@ -50,13 +50,13 @@ $modalClasses = array_merge([
                 </button>
             </div>
             <div class="modal-body <?= h($modalClasses['body']) ?>">
-                <?php if ($message) : ?>
+                <?php if ($message) { ?>
                     <p class="action-modal-message"><?= h($message) ?></p>
-                <?php endif; ?>
+                <?php } ?>
                 <div class="action-modal-body-content" id="<?= h($id) ?>-body-content">
-                    <?php if ($bodyUrl) : ?>
+                    <?php if ($bodyUrl) { ?>
                         <!-- HTMXで内容を読み込む -->
-                    <?php endif; ?>
+                    <?php } ?>
                 </div>
                 <?= $this->Form->hidden('_csrfToken', [
                     'value' => $this->request->getAttribute('csrfToken'),
@@ -65,16 +65,16 @@ $modalClasses = array_merge([
                 <?= $this->Form->hidden('_method', ['value' => $method, 'secure' => false]) ?>
             </div>
             <div class="modal-footer <?= h($modalClasses['footer']) ?>">
-                <?php if ($cancelText !== false) : ?>
+                <?php if ($cancelText !== false) { ?>
                     <button type="button" class="btn <?= h($modalClasses['cancelBtn']) ?>" data-dismiss="modal">
                         <?= h($cancelText) ?>
                     </button>
-                <?php endif; ?>
-                <?php if ($actionText !== false) : ?>
+                <?php } ?>
+                <?php if ($actionText !== false) { ?>
                     <button type="button" class="btn <?= h($modalClasses['actionBtn']) ?>" id="<?= h($id) ?>-action">
                         <?= h($actionText) ?>
                     </button>
-                <?php endif; ?>
+                <?php } ?>
             </div>
         </div>
     </div>
