@@ -13,10 +13,12 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
+use Cake\I18n\I18n;
 use Cake\Routing\Router;
 
 // Set minimal App configuration for Controller/Response compatibility
 Configure::write('App.encoding', 'UTF-8');
+I18n::setLocale('ja_JP');
 Cache::setConfig('_cake_translations_', [
     'className' => 'File',
     'path' => sys_get_temp_dir() . '/cake_utility_test_cache',

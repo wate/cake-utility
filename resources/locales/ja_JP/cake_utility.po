@@ -29,3 +29,57 @@ msgstr "{name}を{action}してよろしいですか？"
 
 msgid "Are you sure you want to {action}?"
 msgstr "{action}してよろしいですか？"
+
+msgid "Import Result"
+msgstr "インポート結果"
+
+msgid "{1} succeeded, {2} errors (Total: {0})"
+msgstr "{0}件中 {1}件成功、{2}件エラー"
+
+msgid "Status"
+msgstr "ステータス"
+
+msgid "Saved"
+msgstr "登録完了"
+
+msgid "Error Details"
+msgstr "エラー詳細"
+
+msgid "Row"
+msgstr "行"
+
+msgid "Error Message"
+msgstr "エラー内容"
+
+msgid "Import Preview"
+msgstr "インポートプレビュー"
+
+msgid "{1} error(s) (Total: {0})"
+msgstr "全{0}行中 {1}件エラー"
+
+msgid "OK"
+msgstr "正常"
+
+msgid "Could not open file: {0}"
+msgstr "ファイルを開けません: {0}"
+
+msgid "Could not create encoding filter: {0}"
+msgstr "文字コード変換フィルタを作成できません: {0}"
+
+msgid "CSV file is empty"
+msgstr "CSVファイルが空です"
+
+msgid "File is not open. Call open() first"
+msgstr "ファイルが開かれていません。先にopen()を呼び出してください"
+
+msgid "Column count mismatch (expected: {0}, actual: {1})"
+msgstr "カラム数が一致しません(期待: {0}, 実際: {1})"
+
+msgid "Failed to save record"
+msgstr "保存に失敗しました"
+
+msgid "PhpSpreadsheet is required. Run: composer require phpoffice/phpspreadsheet"
+msgstr "PhpSpreadsheetが必要です。composer require phpoffice/phpspreadsheet を実行してください"
+
+msgid "Sheet not found: {0}"
+msgstr "シートが見つかりません: {0}"

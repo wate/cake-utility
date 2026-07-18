@@ -1,0 +1,127 @@
+# LANGUAGE translation of CakePHP Application
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2026-07-18 12:02+0900\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: src/Import/CsvRowReader.php:59
+#: src/Import/CsvRowReader.php:73
+#: src/Import/SpreadsheetRowReader.php:64
+msgid "Could not open file: {0}"
+msgstr ""
+
+#: src/Import/CsvRowReader.php:85
+msgid "Could not create encoding filter: {0}"
+msgstr ""
+
+#: src/Import/CsvRowReader.php:99
+msgid "CSV file is empty"
+msgstr ""
+
+#: src/Import/CsvRowReader.php:160
+#: src/Import/CsvRowReader.php:171
+#: src/Import/SpreadsheetRowReader.php:115
+#: src/Import/SpreadsheetRowReader.php:129
+msgid "File is not open. Call open() first"
+msgstr ""
+
+#: src/Import/CsvRowReader.php:191
+#: src/Import/SpreadsheetRowReader.php:161
+msgid "Column count mismatch (expected: {0}, actual: {1})"
+msgstr ""
+
+#: src/Import/ImportWorkflow.php:281
+msgid "Failed to save record"
+msgstr ""
+
+#: src/Import/SpreadsheetRowReader.php:47
+msgid "PhpSpreadsheet is required. Run: composer require phpoffice/phpspreadsheet"
+msgstr ""
+
+#: src/Import/SpreadsheetRowReader.php:74
+msgid "Sheet not found: {0}"
+msgstr ""
+
+#: src/View/Helper/ActionModalHelper.php:53
+#: templates/element/action_modal.php:22
+msgid "Execute"
+msgstr ""
+
+#: src/View/Helper/ActionModalHelper.php:58
+#: templates/element/action_modal.php:20
+msgid "Confirm"
+msgstr ""
+
+#: src/View/Helper/ActionModalHelper.php:67
+#: templates/element/action_modal.php:32
+msgid "Cancel"
+msgstr ""
+
+#: src/View/Helper/ActionModalHelper.php:119
+msgid "Delete"
+msgstr ""
+
+#: src/View/Helper/ActionModalHelper.php:120
+msgid "Delete Confirmation"
+msgstr ""
+
+#: templates/element/action_modal.php:26
+msgid "Are you sure you want to {action} {name}?"
+msgstr ""
+
+#: templates/element/action_modal.php:27
+msgid "Are you sure you want to {action}?"
+msgstr ""
+
+#: templates/element/import_preview.php:31
+msgid "Import Preview"
+msgstr ""
+
+#: templates/element/import_preview.php:38
+msgid "{1} error(s) (Total: {0})"
+msgstr ""
+
+#: templates/element/import_preview.php:50
+#: templates/element/import_result.php:55
+msgid "Status"
+msgstr ""
+
+#: templates/element/import_preview.php:69
+msgid "OK"
+msgstr ""
+
+#: templates/element/import_result.php:36
+msgid "Import Result"
+msgstr ""
+
+#: templates/element/import_result.php:43
+msgid "{1} succeeded, {2} errors (Total: {0})"
+msgstr ""
+
+#: templates/element/import_result.php:72
+#: templates/element/import_result.php:84
+msgid "Saved"
+msgstr ""
+
+#: templates/element/import_result.php:95
+msgid "Error Details"
+msgstr ""
+
+#: templates/element/import_result.php:100
+msgid "Row"
+msgstr ""
+
+#: templates/element/import_result.php:101
+msgid "Error Message"
+msgstr ""
+

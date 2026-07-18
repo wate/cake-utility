@@ -1,6 +1,8 @@
 -- Test Schema for ScenarioLoader Integration Tests
 -- Target: SQLite (in-memory)
 
+PRAGMA foreign_keys = ON;
+
 CREATE TABLE groups (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -84,5 +86,20 @@ CREATE TABLE test_articles (
     password VARCHAR(255) NULL,
     created DATETIME NOT NULL,
     modified DATETIME NOT NULL
+);
+
+-- Import lookup テスト用テーブル
+CREATE TABLE import_departments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    created DATETIME NOT NULL
+);
+
+CREATE TABLE import_employees (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    department_id INTEGER NULL,
+    email TEXT NOT NULL,
+    created DATETIME NOT NULL
 );
 

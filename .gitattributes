@@ -1,0 +1,2 @@
+# Shift_JIS CSV files: prevent text conversion that could corrupt encoding
+tests/Fixture/data/import/sjis.csv binary
