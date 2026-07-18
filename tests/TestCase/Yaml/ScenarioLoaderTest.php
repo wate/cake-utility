@@ -24,41 +24,12 @@ class ScenarioLoaderTest extends TestCase
     {
         parent::setUp();
 
-        // Ensure bootstrap.php (which sets up SQLite) has been loaded
-        // __DIR__ = tests/TestCase/Yaml
-        // dirname(__DIR__, 2) = tests
-        $dbPath = dirname(__DIR__, 2) . '/test_scenario.sqlite';
-
-        // Always re-create connection to ensure it uses SQLite
-        if (in_array('test_scenario', ConnectionManager::configured())) {
-            ConnectionManager::drop('test_scenario');
-        }
-        ConnectionManager::setConfig('test_scenario', [
-            'className' => 'Cake\Database\Connection',
-            'driver' => 'Cake\Database\Driver\Sqlite',
-            'database' => $dbPath,
-            'encoding' => 'utf8',
-            'cacheMetadata' => false,
-        ]);
-
-        // Apply schema (drop tables first to avoid conflicts)
-        $connection = ConnectionManager::get('test_scenario');
-        $schemaFile = dirname(__DIR__, 2) . '/schema.sql';
-        if (file_exists($schemaFile)) {
-            $sql = file_get_contents($schemaFile);
-            $statements = array_filter(array_map('trim', explode(';', $sql)));
-            foreach ($statements as $statement) {
-                if (stripos($statement, 'CREATE TABLE') !== false) {
-                    $tableName = '';
-                    if (preg_match('/CREATE TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?([\w]+)/i', $statement, $matches)) {
-                        $tableName = $matches[1];
-                    }
-                    if ($tableName) {
-                        $connection->execute("DROP TABLE IF EXISTS {$tableName}");
-                    }
-                }
-                $connection->execute($statement);
-            }
+        // bootstrap.php ですでに test 接続とスキーマは作成済み
+        // テスト間の分離のためデータをクリア
+        $connection = ConnectionManager::get('test');
+        $tables = ['shop_products', 'products', 'shops', 'profiles', 'users', 'groups', 'import_departments', 'import_employees'];
+        foreach ($tables as $table) {
+            $connection->execute("DELETE FROM {$table}");
         }
 
         $this->setupTableDefinitions();
@@ -67,8 +38,8 @@ class ScenarioLoaderTest extends TestCase
     public function tearDown(): void
     {
         // Clear data from tables to ensure isolation between tests
-        $tables = ['shop_products', 'products', 'shops', 'profiles', 'users', 'groups'];
-        $connection = ConnectionManager::get('test_scenario');
+        $tables = ['shop_products', 'products', 'shops', 'profiles', 'users', 'groups', 'import_departments', 'import_employees'];
+        $connection = ConnectionManager::get('test');
         foreach ($tables as $table) {
             $connection->execute("DELETE FROM {$table}");
         }
@@ -77,16 +48,6 @@ class ScenarioLoaderTest extends TestCase
         TableRegistry::getTableLocator()->clear();
 
         parent::tearDown();
-    }
-
-    /**
-     * Create a TableLocator that uses the 'test_scenario' connection.
-     *
-     * @return \Cake\ORM\Locator\TableLocator
-     */
-    protected function createSqliteTableLocator(): TableLocator
-    {
-        return TableRegistry::getTableLocator();
     }
 
     protected function setupTableDefinitions(): void
@@ -105,7 +66,7 @@ class ScenarioLoaderTest extends TestCase
         ];
 
         foreach ($tableDefinitions as $alias => $columns) {
-            $table = TableRegistry::getTableLocator()->get($alias, ['connectionName' => 'test_scenario']);
+            $table = TableRegistry::getTableLocator()->get($alias, ['connectionName' => 'test']);
             $schema = $table->getSchema();
             foreach ($columns as $column => $type) {
                 if (!$schema->hasColumn($column)) {
@@ -122,20 +83,17 @@ class ScenarioLoaderTest extends TestCase
 
     public function testScenarioLoadingWithRefResolution(): void
     {
-        $tableLocator = $this->createSqliteTableLocator();
+        $tableLocator = TableRegistry::getTableLocator();
         $baseDir = dirname(__DIR__, 3) . '/tests/Fixture/data';
-        $loader = new ScenarioLoader($baseDir, $tableLocator, 'test_scenario');
+        $loader = new ScenarioLoader($baseDir, $tableLocator, 'test');
 
-        // Load entire scenario (all files in dependency order)
         $result = $loader->load('scenario-loader');
 
-        $this->assertArrayHasKey('records_inserted', $result, 'load() should return records_inserted count');
-        $this->assertArrayHasKey('records_updated', $result, 'load() should return records_updated count');
-        $this->assertGreaterThan(0, $result['records_inserted'], 'At least some records should be inserted');
+        $this->assertArrayHasKey('records_inserted', $result);
+        $this->assertArrayHasKey('records_updated', $result);
+        $this->assertGreaterThan(0, $result['records_inserted']);
 
-        // Verify boolean/json columns are actually stored and read back as their declared types,
-        // not just as the raw integer/text SQLite infers for those columns.
-        $shopProductsTable = TableRegistry::getTableLocator()->get('CakeUtility.ShopProducts', ['connectionName' => 'test_scenario']);
+        $shopProductsTable = TableRegistry::getTableLocator()->get('CakeUtility.ShopProducts', ['connectionName' => 'test']);
         $shopProduct = $shopProductsTable->find()->firstOrFail();
         $this->assertIsBool($shopProduct->is_active, 'is_active should be cast to a PHP boolean');
         $this->assertIsArray($shopProduct->meta_json, 'meta_json should be decoded to a PHP array');
@@ -144,53 +102,48 @@ class ScenarioLoaderTest extends TestCase
 
     public function testInsertAndUpdateCounting(): void
     {
-        $tableLocator = $this->createSqliteTableLocator();
+        $tableLocator = TableRegistry::getTableLocator();
         $baseDir = dirname(__DIR__, 3) . '/tests/Fixture/data';
-        $loader = new ScenarioLoader($baseDir, $tableLocator, 'test_scenario');
+        $loader = new ScenarioLoader($baseDir, $tableLocator, 'test');
 
-        // First load: all inserts
         $result1 = $loader->load('scenario-loader', 'groups');
         $firstInsertCount = $result1['records_inserted'];
         $firstUpdateCount = $result1['records_updated'];
         $this->assertGreaterThan(0, $firstInsertCount, 'First load should insert records');
         $this->assertEquals(0, $firstUpdateCount, 'First load should not update any records');
 
-        // Second load (idempotent): all updates (same data)
         $result2 = $loader->load('scenario-loader', 'groups');
         $secondInsertCount = $result2['records_inserted'];
         $secondUpdateCount = $result2['records_updated'];
-        $this->assertEquals(0, $secondInsertCount, 'Second load should not insert duplicate records');
-        $this->assertGreaterThan(0, $secondUpdateCount, 'Second load should update existing records');
+        $this->assertEquals(0, $secondInsertCount);
+        $this->assertGreaterThan(0, $secondUpdateCount);
     }
 
     public function testScenarioClear(): void
     {
-        $tableLocator = $this->createSqliteTableLocator();
+        $tableLocator = TableRegistry::getTableLocator();
         $baseDir = dirname(__DIR__, 3) . '/tests/Fixture/data';
-        $loader = new ScenarioLoader($baseDir, $tableLocator, 'test_scenario');
+        $loader = new ScenarioLoader($baseDir, $tableLocator, 'test');
 
-        // Load first
         $result = $loader->load('scenario-loader', 'groups');
         $inserted = $result['records_inserted'];
         $this->assertGreaterThan(0, $inserted, 'Records should be inserted');
 
         // Verify data exists
-        $groupsTable = TableRegistry::getTableLocator()->get('CakeUtility.Groups', ['connectionName' => 'test_scenario']);
+        $groupsTable = TableRegistry::getTableLocator()->get('CakeUtility.Groups', ['connectionName' => 'test']);
         $countBefore = $groupsTable->find()->count();
-        $this->assertGreaterThan(0, $countBefore, 'Groups table should have data');
+        $this->assertGreaterThan(0, $countBefore);
 
-        // Clear
         $deleted = $loader->clear('scenario-loader', 'groups');
-        $this->assertEquals($inserted, $deleted, 'Clear should delete same number of records as inserted');
+        $this->assertEquals($inserted, $deleted);
 
-        // Verify data is deleted
         $countAfter = $groupsTable->find()->count();
-        $this->assertEquals(0, $countAfter, 'Groups table should be empty after clear');
+        $this->assertEquals(0, $countAfter);
     }
 
     public function testInvalidRefThrowsException(): void
     {
-        $tableLocator = $this->createSqliteTableLocator();
+        $tableLocator = TableRegistry::getTableLocator();
         $tmpDir = sys_get_temp_dir() . '/scenario_' . uniqid();
         mkdir($tmpDir);
         $tmpFile = $tmpDir . '/users.yml';
@@ -198,7 +151,7 @@ class ScenarioLoaderTest extends TestCase
 
         $tmpParentDir = dirname($tmpDir);
         $scenarioName = basename($tmpDir);
-        $loader = new ScenarioLoader($tmpParentDir, $tableLocator, 'test_scenario');
+        $loader = new ScenarioLoader($tmpParentDir, $tableLocator, 'test');
 
         try {
             $loader->load($scenarioName);
