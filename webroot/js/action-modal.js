@@ -48,27 +48,27 @@
         var modal = document.getElementById(targetId);
         if (!modal) return;
 
-        // タイトル
+        // タイトル（data-titleがあれば上書き、なければサーバー側の__d()翻訳を維持）
         var titleEl = modal.querySelector('.modal-title');
-        if (titleEl) titleEl.textContent = ds.title || 'Confirm';
-
-        // メッセージ
-        var messageEl = modal.querySelector('.action-modal-message');
-        if (messageEl) {
-            var msg = ds.message ||
-                (ds.name
-                    ? 'Are you sure you want to {action} {name}?'
-                    : 'Are you sure you want to {action}?');
-            messageEl.textContent = msg
-                .replace(/\{name\}/g, ds.name || '')
-                .replace(/\{action\}/g, ds.action || 'Execute');
-            messageEl.style.display = msg ? '' : 'none';
+        if (titleEl && ds.title) {
+            titleEl.textContent = ds.title;
         }
 
-        // アクションボタンのテキスト
+        // メッセージ（data-messageがあれば上書き、なければサーバー側の__d()翻訳を維持）
+        var messageEl = modal.querySelector('.action-modal-message');
+        if (messageEl) {
+            if (ds.message) {
+                messageEl.textContent = ds.message
+                    .replace(/\{name\}/g, ds.name || '')
+                    .replace(/\{action\}/g, ds.action || 'Execute');
+            }
+            messageEl.style.display = ds.message || messageEl.textContent ? '' : 'none';
+        }
+
+        // アクションボタンのテキスト（data-action-text/data-actionがあれば上書き）
         var actionBtn = modal.querySelector('.btn[id$="-action"]');
-        if (actionBtn) {
-            actionBtn.textContent = ds.actionText || ds.action || 'Execute';
+        if (actionBtn && (ds.actionText || ds.action)) {
+            actionBtn.textContent = ds.actionText || ds.action;
         }
 
         // bodyUrl がある場合は HTMX で内容を読み込む

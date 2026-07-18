@@ -1,7 +1,7 @@
 ScenarioLoader 仕様
 =========================
 
-`CakeUtility\ScenarioLoader` は、`Yaml\Loader` が変換したデータをCakePHPのORMを通じてデータベースに安全かつ冪等に投入するための管理クラスです。
+`CakeUtility\Yaml\ScenarioLoader` は、`Yaml\Loader` が変換したデータをCakePHPのORMを通じてデータベースに安全かつ冪等に投入するための管理クラスです。
 
 基本コンセプト
 -------------------------
@@ -101,11 +101,11 @@ new ScenarioLoader(
 
 ```php
 use CakeUtility\Yaml\ScenarioLoader;
-use Cake\ORM\TableRegistry;
+use Cake\ORM\Locator\TableLocator;
 
 // ベースディレクトリを第一引数に指定
 $baseDir = 'config/Seeds/data';
-$tableLocator = TableRegistry::getTableLocator();
+$tableLocator = new TableLocator();
 $loader = new ScenarioLoader($baseDir, $tableLocator, 'default');
 
 // シナリオ配下の全データを投入（ファイル名からテーブル名を自動推測、依存関係を自動解決）

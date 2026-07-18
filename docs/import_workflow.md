@@ -110,14 +110,43 @@ public function import()
 CSVに部署名のような表示名があり、それを `department_id` として保存したい場合は `lookup` を使います。
 内部的に全行の値を収集→1回のSELECT→メモリキャッシュするので、N+1問題は発生しません。
 
+#### DB検索形式(基本)
+
+テーブルを検索してIDに変換します。
+
 ```php
 'lookup' => [
     '部署名' => [
         'table' => 'Departments',
         'from' => 'name',
         'to' => 'id',
-        'default' => null, // 見つからなかった場合の値
+        'default' => null,        // 見つからなかった場合の値
+        'conditions' => ['is_active' => true], // 追加のWHERE条件(省略可)
     ],
+],
+```
+
+#### インラインマップ形式
+
+小さなマッピングに。テーブルを作るまでもない場合に便利です。
+
+```php
+'lookup' => [
+    '性別' => ['男性' => 1, '女性' => 2, '不明' => null],
+],
+```
+
+#### コールバック形式
+
+動的な検索ロジックが必要な場合に使います。
+
+```php
+'lookup' => [
+    '部署名' => function (array $values, Table $sourceTable): array {
+        // $values: CSVから収集したユニークな値の配列
+        // 戻り値: [値 => ID, ...] の連想配列
+        return ['営業部' => 1, '開発部' => 2];
+    },
 ],
 ```
 
@@ -144,6 +173,49 @@ CSVに部署名のような表示名があり、それを `department_id` とし
 },
 ```
 
+### 保存後に処理する(afterSave)
+
+保存成功後のエンティティで後処理を行います。ログ出力や通知などに利用します。
+戻り値は無視されます。
+
+```php
+'afterSave' => function (EntityInterface $entity) {
+    // 保存後のログ出力など
+    $this->log('Imported: ' . $entity->id);
+},
+```
+
+### 特定の行をスキップする(rowFilter)
+
+条件に合わない行を処理対象外とします。`false` を返す行がスキップされます。
+
+```php
+'rowFilter' => function (array $row): bool {
+    // ステータスが「対象外」の行をスキップ
+    return ($row['ステータス'] ?? '') !== '対象外';
+},
+```
+
+### 重複チェックして更新/作成する(upsertKeys)
+
+指定したカラムの値で既存レコードを検索し、あれば更新・なければ新規作成します。
+`columnMap` で変換後のカラム名を指定してください。
+
+```php
+'upsertKeys' => ['email'],
+'columnMap' => [
+    'メールアドレス' => 'email',
+],
+```
+
+### バッチ分割保存する(batchSize)
+
+大量データを一定行数ごとに分割して保存します。メモリ使用量の抑制に効果的です。
+
+```php
+'batchSize' => 1000, // 1000行ごとに分割保存
+```
+
 ### 確認画面パターンに対応する
 
 `import()` の代わりに `preview()` と `execute()` を分離して使います。
@@ -162,32 +234,39 @@ $result = $importWorkflow->execute($entities);
 
 ### ImportWorkflow のオプション一覧
 
-| オプション    | 型       | デフォルト         | 説明                                 |
-|---------------|----------|--------------------|--------------------------------------|
-| `columnMap`   | array    | `[]`(同名として扱う) | CSV列名 → モデルカラム名のマッピング |
-| `fixed`       | array    | `[]`               | 全行に一律でセットする値             |
-| `lookup`      | array    | null               | null                                 | FKバッチ解決の設定                                      |
-| `beforeMarshal` | callable | null               | null                                 | バリデーション前の加工                                  |
-| `beforeSave`  | callable | null               | null                                 | 保存前のエンティティ加工                                |
-| `validate`    | string   | Validator          | `'default'`                          | バリデーションルールセット名またはValidatorオブジェクト |
+| オプション         | 型       | デフォルト           | 説明                                 |
+| ------------------ | -------- | -------------------- | ------------------------------------ |
+| `columnMap`        | array    | `[]`(同名として扱う) | CSV列名 → モデルカラム名のマッピング |
+| `fixed`            | array    | `[]`                 | 全行に一律でセットする値(callable可) |
+| `lookup`           | array    | callable             | `null`                               | FKバッチ解決の設定(配列/インラインマップ/コールバック) |
+| `beforeMarshal`    | callable | null                 | `null`                               | バリデーション前の加工                                 |
+| `beforeSave`       | callable | null                 | `null`                               | 保存前のエンティティ加工                               |
+| `afterSave`        | callable | null                 | `null`                               | 保存完了後のフック                                     |
+| `validate`         | string   | Validator            | `'default'`                          | バリデーションルールセット名またはValidator            |
+| `newEntityOptions` | array    | `[]`                 | `newEntity()` に渡す追加オプション   |
+| `batchSize`        | int      | `0`(分割なし)        | 保存時のバッチ分割サイズ             |
+| `rowFilter`        | callable | null                 | `null`                               | 行フィルター(`false`を返す行をスキップ)                |
+| `upsertKeys`       | array    | null                 | `null`                               | upsert用キーカラム名の配列                             |
 
 ### RowReader のオプション一覧
 
-| クラス               | オプション | 型     | デフォルト | 説明                       |
-|----------------------|------------|--------|------------|----------------------------|
-| `CsvRowReader`       | `encoding` | string | `'sjis'`   | CSVの文字コード(iconv形式) |
-| `CsvRowReader`       | `delimiter` | string | `','`      | 区切り文字                 |
-| `CsvRowReader`       | `enclosure` | string | `'"'`      | 囲み文字                   |
-| `SpreadsheetRowReader` | `sheetName` | string | null       | null(最初のシート)         | 読み込むシート名 |
+| クラス                 | オプション   | 型     | デフォルト | 説明                                           |
+| ---------------------- | ------------ | ------ | ---------- | ---------------------------------------------- |
+| `CsvRowReader`         | `encoding`   | string | `'auto'`   | CSVの文字コード(iconv形式)。`'auto'`で自動検出 |
+| `CsvRowReader`         | `headerRows` | bool   | int        | `true`                                         | ヘッダー行数。`true`=1行, `false`=なし, 数値=指定行数 |
+| `CsvRowReader`         | `delimiter`  | string | `','`      | 区切り文字                                     |
+| `CsvRowReader`         | `enclosure`  | string | `'"'`      | 囲み文字                                       |
+| `CsvRowReader`         | `escape`     | string | `'\\'`     | エスケープ文字                                 |
+| `SpreadsheetRowReader` | `sheetName`  | string | null       | `null`                                         | 読み込むシート名(`null`で最初のシート)                |
 
 ### look up の設定項目
 
-| キー    | 必須 | 説明                                          |
-|---------|------|-----------------------------------------------|
-| `table` | ○    | 参照先のテーブル名またはクラス名              |
-| `from`  | ○    | 検索に使うカラム名(CSV側の値と一致するカラム) |
-| `to`    | ○    | 取得するカラム名(FKに入れる値)                |
-| `default` | -    | 見つからなかった場合の値(省略時は null)       |
+| キー         | 必須 | 説明                                           |
+| ------------ | ---- | ---------------------------------------------- |
+| `table`      | ○    | 参照先のテーブル名またはクラス名               |
+| `from`       | ○    | 検索に使うカラム名(CSV側の値と一致するカラム)  |
+| `default`    | -    | 見つからなかった場合の値(省略時は null)        |
+| `conditions` | -    | WHERE句の追加条件(例: `['is_active' => true]`) |
 
 ### 戻り値
 

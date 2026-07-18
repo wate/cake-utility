@@ -123,6 +123,4 @@ class ActionModalHelper extends Helper
 
         return $this->button($options);
     }
-
-
 }
