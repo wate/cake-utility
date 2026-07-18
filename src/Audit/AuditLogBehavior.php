@@ -35,7 +35,9 @@ class AuditLogBehavior extends Behavior
     ];
 
     /**
-     * 新規作成かどうかを追跡（afterSave内でcreate/updateを区別するため）
+     * 新規作成かどうかを追跡するフラグ
+     *
+     * afterSave内でcreate/updateを区別するためにbeforeSaveでセットする。
      *
      * @var bool
      */
@@ -43,6 +45,8 @@ class AuditLogBehavior extends Behavior
 
     /**
      * beforeSave イベントハンドラ
+     *
+     * エンティティが新規作成かどうかを記録し、afterSaveで使用する。
      *
      * @param \Cake\Event\EventInterface $event イベント
      * @param \Cake\Datasource\EntityInterface $entity 保存対象エンティティ
@@ -56,6 +60,9 @@ class AuditLogBehavior extends Behavior
 
     /**
      * afterSave イベントハンドラ
+     *
+     * 変更があったフィールドのbefore/after値を収集し、監査ログに記録する。
+     * 除外カラム設定に基づき記録対象外フィールドはスキップする。
      *
      * @param \Cake\Event\EventInterface $event イベント
      * @param \Cake\Datasource\EntityInterface $entity 保存されたエンティティ
@@ -95,6 +102,9 @@ class AuditLogBehavior extends Behavior
 
     /**
      * afterDelete イベントハンドラ
+     *
+     * 削除されたエンティティのデータを退避し、監査ログに削除として記録する。
+     * 削除後もメモリ上のEntityデータは残っているため、削除前の値を取得可能。
      *
      * @param \Cake\Event\EventInterface $event イベント
      * @param \Cake\Datasource\EntityInterface $entity 削除されたエンティティ

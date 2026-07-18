@@ -15,22 +15,30 @@ use Cake\Datasource\EntityInterface;
 class ImportResult
 {
     /**
-     * @var int 成功件数
+     * 成功件数
+     *
+     * @var int
      */
     private int $successCount;
 
     /**
-     * @var int エラー件数
+     * エラー件数
+     *
+     * @var int
      */
     private int $errorCount;
 
     /**
-     * @var array<EntityInterface> 保存成功したエンティティ
+     * 保存成功したエンティティの配列
+     *
+     * @var array<\Cake\Datasource\EntityInterface>
      */
     private array $entities;
 
     /**
-     * @var array<int, array{row: int, message: string, data: array<string, mixed>}> エラー行の情報
+     * エラー行の情報
+     *
+     * @var array<int, array{row: int, message: string, data: array<string, mixed>}>
      */
     private array $errors;
 
@@ -71,7 +79,7 @@ class ImportResult
     /**
      * 保存成功したエンティティを取得する。
      *
-     * @return array<EntityInterface>
+     * @return array<\Cake\Datasource\EntityInterface>
      */
     public function savedEntities(): array
     {

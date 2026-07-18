@@ -15,26 +15,73 @@ use function Cake\I18n\__d;
  */
 class CsvRowReader implements RowReaderInterface
 {
+    /**
+     * ファイルのエンコーディング
+     *
+     * @var string
+     */
     private string $encoding;
 
+    /**
+     * CSV区切り文字
+     *
+     * @var string
+     */
     private string $delimiter;
 
+    /**
+     * CSV囲み文字
+     *
+     * @var string
+     */
     private string $enclosure;
 
+    /**
+     * CSVエスケープ文字
+     *
+     * @var string
+     */
     private string $escape;
 
-    /** @var bool|int ヘッダー行数。true=1行, false=なし, int=指定行数 */
+    /**
+     * ヘッダー行数
+     *
+     * true=1行, false=なし, int=指定行数
+     *
+     * @var bool|int
+     */
     private bool|int $headerRows;
 
-    /** @var resource|null */
+    /**
+     * ファイルハンドル
+     *
+     * @var resource|null
+     */
     private $handle = null;
 
-    /** @var array<string>|null */
+    /**
+     * ヘッダー行のカラム名配列
+     *
+     * @var array<string>|null
+     */
     private ?array $headerRow = null;
 
-    /** @var array<int, array{row: int, message: string, data: array<string, mixed>}> */
+    /**
+     * パースエラー一覧
+     *
+     * @var array<int, array{row: int, message: string, data: array<string, mixed>}>
+     */
     private array $errors = [];
 
+    /**
+     * コンストラクタ
+     *
+     * @param string $encoding ファイルエンコーディング（'auto' で自動検出）
+     * @param bool|int $headerRows ヘッダー行数（true=1行, false=なし, int=指定行数）
+     * @param string $delimiter CSV区切り文字
+     * @param string $enclosure CSV囲み文字
+     * @param string $escape CSVエスケープ文字
+     */
     public function __construct(
         string $encoding = 'auto',
         bool|int $headerRows = true,
@@ -49,6 +96,9 @@ class CsvRowReader implements RowReaderInterface
         $this->escape = $escape;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function open(string $filePath): void
     {
         $this->errors = [];
@@ -153,6 +203,9 @@ class CsvRowReader implements RowReaderInterface
         return $detected;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function headers(): array
     {
         if ($this->headerRow === null) {
@@ -164,6 +217,9 @@ class CsvRowReader implements RowReaderInterface
         return $this->headerRow;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function rows(): iterable
     {
         if ($this->handle === null) {
@@ -201,11 +257,17 @@ class CsvRowReader implements RowReaderInterface
         }
     }
 
+    /**
+     * @inheritDoc
+     */
     public function errors(): array
     {
         return $this->errors;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function close(): void
     {
         if ($this->handle !== null) {

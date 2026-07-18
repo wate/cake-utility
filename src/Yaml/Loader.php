@@ -22,7 +22,7 @@ use function Cake\I18n\__d;
 class Loader
 {
     /**
-     * @today 解決時の時間境界を設定します
+     * 解決時の時間境界を設定する
      *
      * @param string $boundary 'start' または 'end'
      * @return $this
@@ -34,7 +34,10 @@ class Loader
     }
 
     /**
-     * @today 解決時の時間境界 ('start' = 00:00:00, 'end' = 23:59:59)
+     * 解決時の時間境界
+     *
+     * 'start' = 00:00:00, 'end' = 23:59:59
+     *
      * @var string
      */
     protected string $todayBoundary = 'start';
@@ -43,8 +46,8 @@ class Loader
      * YAMLファイルまたは文字列を読み込み、構造化データに変換する（パースフェーズ）
      *
      * @param string $input YAMLファイルの絶対パス、またはYAML文字列
-     * @return array 構造化されたレコードリスト
-     * @throws RuntimeException パース失敗時
+     * @return array<int|string, mixed> 構造化されたレコードリスト
+     * @throws \RuntimeException パース失敗時
      */
     public function parse(string $input): array
     {
@@ -64,8 +67,8 @@ class Loader
     /**
      * データの正規化（予約語解決）
      *
-     * @param mixed $data
-     * @return mixed
+     * @param mixed $data 正規化するデータ
+     * @return mixed 正規化後のデータ
      */
     protected function normalize($data)
     {
@@ -89,8 +92,9 @@ class Loader
     /**
      * 日時予約語を実際の日時オブジェクトに変換する
      *
-     * @param string $value
+     * @param string $value '@now', '@today' などの予約語文字列
      * @return \DateTimeImmutable
+     * @throws \RuntimeException 不正な日時表現の場合
      */
     protected function resolveDatetime(string $value): \DateTimeImmutable
     {
@@ -122,7 +126,7 @@ class Loader
      *
      * @param string $input YAMLファイルの絶対パス、またはYAML文字列
      * @return array<string> ユニークな参照ラベル配列 (例: ['user1', 'post1', ...])
-     * @throws RuntimeException パース失敗時
+     * @throws \RuntimeException パース失敗時
      */
     public function extractReferences(string $input): array
     {
@@ -144,8 +148,8 @@ class Loader
     /**
      * 再帰的に配列内のすべての ref: 参照を走査して抽出する
      *
-     * @param mixed $data
-     * @param array $references 参照ラベルを蓄積する配列
+     * @param mixed $data 走査対象のデータ
+     * @param array<string> &$references 参照ラベルを蓄積する配列
      * @return void
      */
     private function scanForReferences($data, &$references): void
@@ -165,10 +169,10 @@ class Loader
      * 参照ラベルを実際のID値に置換し、スキーマに基づいた型変換を行う（参照解決フェーズ）
      *
      * @param array $data 処理対象のデータ
-     * @param array $refMap 参照マップ (label => id)
-     * @param Table|TableSchema|null $context 型変換に使用するテーブルまたはスキーマオブジェクト
+     * @param array<string, mixed> $refMap 参照マップ (label => id)
+     * @param \Cake\ORM\Table|\Cake\Database\Schema\TableSchema|null $context 型変換に使用するテーブルまたはスキーマオブジェクト
      * @return array 参照解決・型変換後のデータ
-     * @throws RuntimeException 参照解決に失敗した場合
+     * @throws \RuntimeException 参照解決に失敗した場合
      */
     public function resolve(array $data, array $refMap, Table|TableSchema|null $context = null): array
     {
@@ -210,10 +214,10 @@ class Loader
     /**
      * 個別の値を参照解決する
      *
-     * @param mixed $value
-     * @param array $refMap
-     * @return mixed
-     * @throws RuntimeException
+     * @param mixed $value 解決対象の値
+     * @param array<string, mixed> $refMap 参照マップ
+     * @return mixed 参照解決後の値
+     * @throws \RuntimeException 参照ラベルが見つからない場合
      */
     protected function resolveValue($value, array $refMap)
     {
@@ -239,9 +243,9 @@ class Loader
     /**
      * スキーマ定義に基づいて値をキャストする
      *
-     * @param mixed $value
-     * @param \Cake\Database\Schema\Column $column
-     * @return mixed
+     * @param mixed $value キャスト対象の値
+     * @param array<string, mixed> $column カラム定義配列
+     * @return mixed キャスト後の値
      */
     protected function castValue($value, array $column)
     {

@@ -17,12 +17,20 @@ use CakeUtility\Audit\AuditLogPurgeService;
  */
 class AuditLogPurgeServiceTest extends TestCase
 {
+    /**
+     * CSVエクスポートディレクトリ（テスト用）
+     *
+     * @var string
+     */
     private string $csvExportDir;
 
     /**
      * テストクラス全体で1度だけテーブルを準備する。
+     *
      * プロジェクトルートからの実行時はマイグレーションを流し、
      * プラグイン単体の実行時は bootstrap.php が schema.sql を読み込むため何もしない。
+     *
+     * @return void
      */
     public static function setUpBeforeClass(): void
     {
@@ -59,6 +67,13 @@ class AuditLogPurgeServiceTest extends TestCase
         }
     }
 
+    /**
+     * テスト前処理
+     *
+     * CSVエクスポートディレクトリの作成とAuditLog設定の初期化を行う。
+     *
+     * @return void
+     */
     public function setUp(): void
     {
         parent::setUp();
@@ -83,6 +98,13 @@ class AuditLogPurgeServiceTest extends TestCase
         ]);
     }
 
+    /**
+     * テスト後処理
+     *
+     * テストデータの削除とCSVエクスポートディレクトリのクリーンアップを行う。
+     *
+     * @return void
+     */
     public function tearDown(): void
     {
         parent::tearDown();

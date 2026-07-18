@@ -15,22 +15,30 @@ use Cake\Datasource\EntityInterface;
 class PreviewResult
 {
     /**
-     * @var array<EntityInterface> バリデーション済みエンティティ
+     * バリデーション済みエンティティの配列
+     *
+     * @var array<\Cake\Datasource\EntityInterface>
      */
     private array $entities;
 
     /**
-     * @var int 総行数
+     * 総行数
+     *
+     * @var int
      */
     private int $total;
 
     /**
-     * @var int エラー行数
+     * エラー行数
+     *
+     * @var int
      */
     private int $errorCount;
 
     /**
-     * @var array<int, array{row: int, message: string, data: array<string, mixed>}> エラー行の情報
+     * エラー行の情報
+     *
+     * @var array<int, array{row: int, message: string, data: array<string, mixed>}>
      */
     private array $errors;
 
@@ -53,7 +61,7 @@ class PreviewResult
     /**
      * バリデーション済みエンティティを取得する。
      *
-     * @return array<EntityInterface>
+     * @return array<\Cake\Datasource\EntityInterface>
      */
     public function validatedRows(): array
     {

@@ -21,8 +21,18 @@ use CakeUtility\Controller\Component\AuditLogComponent;
  */
 class AuditLogComponentTest extends TestCase
 {
+    /**
+     * テスト対象のコンポーネントインスタンス
+     *
+     * @var \CakeUtility\Controller\Component\AuditLogComponent
+     */
     private AuditLogComponent $component;
 
+    /**
+     * テスト用コントローラ
+     *
+     * @var \Cake\Controller\Controller
+     */
     private Controller $controller;
 
     /**
@@ -65,6 +75,13 @@ class AuditLogComponentTest extends TestCase
         }
     }
 
+    /**
+     * テスト前処理
+     *
+     * AuditLog設定の初期化、モックリクエストの生成、コンポーネントインスタンスの生成を行う。
+     *
+     * @return void
+     */
     public function setUp(): void
     {
         parent::setUp();
@@ -86,6 +103,13 @@ class AuditLogComponentTest extends TestCase
         $this->component = new AuditLogComponent($registry);
     }
 
+    /**
+     * テスト後処理
+     *
+     * テストデータとAuditLog設定をクリアする。
+     *
+     * @return void
+     */
     public function tearDown(): void
     {
         parent::tearDown();

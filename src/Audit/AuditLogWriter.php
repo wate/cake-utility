@@ -18,8 +18,18 @@ use Cake\ORM\Table;
  */
 class AuditLogWriter
 {
+    /**
+     * テーブルロケーター
+     *
+     * @var \Cake\ORM\Locator\TableLocator
+     */
     private TableLocator $tableLocator;
 
+    /**
+     * 使用するDB接続名
+     *
+     * @var string
+     */
     private string $connectionName;
 
     /**
@@ -76,7 +86,7 @@ class AuditLogWriter
     /**
      * カテゴリーごとの保持日数設定を取得する。
      *
-     * @return array<string, mixed> カテゴリーをキーとした保持日数設定
+     * @return array<string, int> カテゴリーをキーとした保持日数設定
      */
     public function getRetentionByCategory(): array
     {

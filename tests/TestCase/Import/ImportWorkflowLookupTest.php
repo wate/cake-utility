@@ -20,10 +20,34 @@ use CakeUtility\Import\ImportWorkflow;
  */
 class ImportWorkflowLookupTest extends TestCase
 {
+    /**
+     * テストフィクスチャファイルのディレクトリパス
+     *
+     * @var string
+     */
     private string $fixturePath;
+
+    /**
+     * 部署テーブルのインスタンス（lookup参照先）
+     *
+     * @var \Cake\ORM\Table
+     */
     private Table $departmentsTable;
+
+    /**
+     * 従業員テーブルのインスタンス（インポート先）
+     *
+     * @var \Cake\ORM\Table
+     */
     private Table $employeesTable;
 
+    /**
+     * テスト前処理
+     *
+     * フィクスチャパスの設定、テーブルインスタンスの生成、テストデータの投入を行う。
+     *
+     * @return void
+     */
     public function setUp(): void
     {
         parent::setUp();
@@ -53,6 +77,13 @@ class ImportWorkflowLookupTest extends TestCase
         $this->departmentsTable->saveMany($departments);
     }
 
+    /**
+     * テスト後処理
+     *
+     * テストデータをクリーンアップする。
+     *
+     * @return void
+     */
     public function tearDown(): void
     {
         parent::tearDown();

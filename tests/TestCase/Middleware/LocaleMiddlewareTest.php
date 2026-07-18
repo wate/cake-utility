@@ -11,6 +11,11 @@ use CakeUtility\I18n\Middleware\LocaleMiddleware;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface;
 
+/**
+ * LocaleMiddlewareTest
+ *
+ * LocaleMiddleware によるロケール自動検出・設定の各パターンを検証する。
+ */
 class LocaleMiddlewareTest extends TestCase
 {
     /**
@@ -18,6 +23,13 @@ class LocaleMiddlewareTest extends TestCase
      */
     protected LocaleMiddleware $middleware;
 
+    /**
+     * テスト前処理
+     *
+     * テスト用ロケールディレクトリの作成とミドルウェアインスタンスの生成を行う。
+     *
+     * @return void
+     */
     public function setUp(): void
     {
         parent::setUp();
@@ -36,6 +48,13 @@ class LocaleMiddlewareTest extends TestCase
         I18n::setLocale('en_US');
     }
 
+    /**
+     * テスト後処理
+     *
+     * ロケールと設定を初期状態に戻す。
+     *
+     * @return void
+     */
     public function tearDown(): void
     {
         parent::tearDown();

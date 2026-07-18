@@ -16,7 +16,9 @@ use CakeUtility\CakeUtilityPlugin;
 class CakeUtilityPluginTest extends TestCase
 {
     /**
-     * setUp
+     * テスト前処理
+     *
+     * 既存のCakePHP設定をクリアし、LOGS/CACHE定数を定義する。
      *
      * @return void
      */
@@ -37,7 +39,9 @@ class CakeUtilityPluginTest extends TestCase
     }
 
     /**
-     * tearDown
+     * テスト後処理
+     *
+     * CakePHP設定をクリアする。
      *
      * @return void
      */

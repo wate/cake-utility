@@ -17,6 +17,11 @@ use CakeUtility\Audit\AuditLogWriter;
  */
 class AuditLogWriterTest extends TestCase
 {
+    /**
+     * テスト対象のAuditLogWriterインスタンス
+     *
+     * @var \CakeUtility\Audit\AuditLogWriter
+     */
     private AuditLogWriter $writer;
 
     /**
@@ -66,6 +71,13 @@ class AuditLogWriterTest extends TestCase
         }
     }
 
+    /**
+     * テスト前処理
+     *
+     * AuditLog設定の初期化と AuditLogWriter インスタンスの生成を行う。
+     *
+     * @return void
+     */
     public function setUp(): void
     {
         parent::setUp();
@@ -81,6 +93,13 @@ class AuditLogWriterTest extends TestCase
         $this->writer = new AuditLogWriter(null, 'test');
     }
 
+    /**
+     * テスト後処理
+     *
+     * テストデータとAuditLog設定をクリアする。
+     *
+     * @return void
+     */
     public function tearDown(): void
     {
         parent::tearDown();

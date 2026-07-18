@@ -16,44 +16,52 @@ use RuntimeException;
 use function Cake\I18n\__d;
 
 /**
- * ScenarioLoader: Orchestrates the loading of YAML scenario data into the database.
+ * ScenarioLoader
  *
- * This class receives parsed YAML data from Yaml\Loader and manages the database
- * persistence flow, including reference resolution via refMaps, idempotent upserts,
- * and transaction control.
+ * YAMLシナリオデータをデータベースに投入・削除するオーケストレーター。
+ * Yaml\Loader からパース済みYAMLデータを受け取り、参照解決(refMap)、
+ * 冪等なupsert、トランザクション制御を含むDB永続化フローを管理する。
  */
 class ScenarioLoader
 {
     /**
-     * Base directory path for scenario files.
+     * シナリオファイルのベースディレクトリパス
+     *
+     * @var string
      */
     protected string $basePath;
 
     /**
-     * Reference map: maps _ref labels to their corresponding database IDs.
+     * 参照マップ
+     *
+     * _ref ラベルと実際のデータベースIDを対応付ける。
      *
      * @var array<string, mixed>
      */
     protected array $refMap = [];
 
     /**
-     * Table locator instance.
+     * テーブルロケーター
+     *
+     * @var \Cake\ORM\Locator\TableLocator
      */
     protected TableLocator $tableLocator;
 
     /**
-     * Connection name for table resolution.
+     * テーブル解決に使用するDB接続名
+     *
+     * @var string
      */
     protected string $connectionName = 'default';
 
     /**
-     * Constructor.
+     * コンストラクタ
      *
-     * @param string|null $basePath Base directory path for scenario files.
+     * @param string|null $basePath シナリオファイルのベースディレクトリパス
      *   null の場合は `Configure::read('Scenario.baseDir')` から読み込む。
      *   それも未設定の場合は '{CACHE}scenarios' を使用する。
-     * @param TableLocator|null $tableLocator Optional TableLocator instance.
-     * @param string $connectionName Connection name for table resolution.
+     * @param \Cake\ORM\Locator\TableLocator|null $tableLocator テーブルロケーター（省略時はデフォルト）
+     * @param string $connectionName テーブル解決に使用するDB接続名
      */
     public function __construct(?string $basePath = null, ?TableLocator $tableLocator = null, string $connectionName = 'default')
     {
@@ -66,12 +74,12 @@ class ScenarioLoader
     }
 
     /**
-     * Load a scenario from a specified scenario name.
+     * 指定されたシナリオ名のデータをデータベースに投入する。
      *
-     * @param string $scenarioName Scenario name (directory containing YAML files).
-     * @param string|array<string>|null $tableNames Target table name(s). Omit to load all tables in scenario.
-     * @return array<string, int> Associative array with 'records_inserted' and 'records_updated' counts.
-     * @throws RuntimeException If loading fails.
+     * @param string $scenarioName シナリオ名（YAMLファイルを含むディレクトリ名）
+     * @param string|array<string>|null $tableNames 対象テーブル名（省略時は全テーブル）
+     * @return array<string, int> 'records_inserted' と 'records_updated' を含む連想配列
+     * @throws \RuntimeException ロード失敗時
      */
     public function load(string $scenarioName, string|array|null $tableNames = null): array
     {
@@ -108,12 +116,12 @@ class ScenarioLoader
     }
 
     /**
-     * Load a single table from a YAML file.
+     * 単一テーブルをYAMLファイルからロードする。
      *
-     * @param string $filePath Path to the YAML file (absolute path).
-     * @param string $tableName The CakePHP table alias to target.
-     * @return array<string, int> Associative array with 'records_inserted' and 'records_updated' counts.
-     * @throws RuntimeException If loading fails.
+     * @param string $filePath YAMLファイルの絶対パス
+     * @param string $tableName 対象のCakePHPテーブルエイリアス
+     * @return array<string, int> 'records_inserted' と 'records_updated' を含む連想配列
+     * @throws \RuntimeException ロード失敗時
      */
     protected function loadTable(string $filePath, string $tableName): array
     {
@@ -140,14 +148,14 @@ class ScenarioLoader
     }
 
     /**
-     * Clear a scenario from the database.
+     * 指定されたシナリオのデータをデータベースから削除する。
      *
-     * Deletes records in reverse order.
+     * 依存関係を考慮し、逆順でレコードを削除する。
      *
-     * @param string $scenarioName Scenario name (directory containing YAML files).
-     * @param string|array<string>|null $tableNames Target table name(s). Omit to clear all tables in scenario.
-     * @return int Number of records deleted.
-     * @throws RuntimeException On deletion failure.
+     * @param string $scenarioName シナリオ名（YAMLファイルを含むディレクトリ名）
+     * @param string|array<string>|null $tableNames 対象テーブル名（省略時は全テーブル）
+     * @return int 削除したレコード数
+     * @throws \RuntimeException 削除失敗時
      */
     public function clear(string $scenarioName, string|array|null $tableNames = null): int
     {
@@ -179,12 +187,12 @@ class ScenarioLoader
     }
 
     /**
-     * Clear a single table from a YAML file.
+     * 単一テーブルをYAMLファイルからクリアする。
      *
-     * @param string $filePath Path to the YAML file (absolute path).
-     * @param string $tableName The CakePHP table alias to target.
-     * @return int Number of records deleted.
-     * @throws RuntimeException On deletion failure.
+     * @param string $filePath YAMLファイルの絶対パス
+     * @param string $tableName 対象のCakePHPテーブルエイリアス
+     * @return int 削除したレコード数
+     * @throws \RuntimeException 削除失敗時
      */
     protected function clearTable(string $filePath, string $tableName): int
     {
@@ -234,7 +242,9 @@ class ScenarioLoader
     }
 
     /**
-     * Reset the internal refMap.
+     * 内部参照マップをリセットする。
+     *
+     * @return void
      */
     public function resetRefMap(): void
     {
@@ -242,10 +252,10 @@ class ScenarioLoader
     }
 
     /**
-     * Get a Table instance.
+     * テーブルインスタンスを取得する。
      *
-     * @param string $tableName CakePHP table alias.
-     * @return Table
+     * @param string $tableName CakePHPテーブルエイリアス
+     * @return \Cake\ORM\Table
      */
     protected function getTable(string $tableName): Table
     {
@@ -253,16 +263,17 @@ class ScenarioLoader
     }
 
     /**
-     * Persist a single record to the database using upsert logic.
+    /**
+     * 単一レコードをupsertロジックでデータベースに永続化する。
      *
-     * @param Table $table Target table.
-     * @param array<string, mixed> $record Resolved record data.
-     * @param string $filePath Original file path for error reporting.
-     * @param int $index Record index for error reporting.
-     * @param int &$inserted Reference counter for inserted records.
-     * @param int &$updated Reference counter for updated records.
+     * @param \Cake\ORM\Table $table 対象テーブル
+     * @param array<string, mixed> $record 解決済みレコードデータ
+     * @param string $filePath エラー報告用の元ファイルパス
+     * @param int $index エラー報告用のレコードインデックス
+     * @param int &$inserted 挿入件数の参照カウンター
+     * @param int &$updated 更新件数の参照カウンター
      * @return void
-     * @throws RuntimeException On persistence failure.
+     * @throws \RuntimeException 永続化失敗時
      */
     protected function persistRecord(Table $table, array $record, string $filePath, int $index, int &$inserted, int &$updated): void
     {
@@ -314,17 +325,16 @@ class ScenarioLoader
         }
     }
 
-    /**     * Resolve an entity for persistence based on ID strategy.
+    /**
+     * ID戦略に基づいて永続化用のエンティティを解決する。
      *
-     * - Fixture-style: when `id` is explicitly set in YAML, use that ID.
-     *   Load existing by primary key, or create new with specified ID.
-     * - Seed-style: when `id` is omitted, use `_keys`-based lookup.
-     *   Load by key conditions, or create empty entity.
+     * - Fixture方式: YAMLに `id` が明示指定されている場合、主キーで既存検索→新規作成
+     * - Seed方式: `id` がない場合、`_keys` ベースで既存検索→空エンティティ作成
      *
-     * @param \Cake\ORM\Table $table Target table.
-     * @param array<string, mixed> $record Resolved record data.
-     * @param array<string, mixed> $originalRecord Original YAML record (before resolution).
-     * @param string|array<string>|null $keys Key fields for Seed-style lookup.
+     * @param \Cake\ORM\Table $table 対象テーブル
+     * @param array<string, mixed> $record 参照解決済みのレコードデータ
+     * @param array<string, mixed> $originalRecord 解決前の元YAMLレコード
+     * @param string|array<string>|null $keys Seed方式の検索キー
      * @return \Cake\ORM\Entity
      */
     protected function resolveEntity(Table $table, array $record, array $originalRecord, string|array|null $keys): EntityInterface
@@ -375,11 +385,12 @@ class ScenarioLoader
         return $this->findOrCreateEntity($table, $record, $keys);
     }
 
-    /**     * Find an existing entity by keys or return a new one.
+    /**
+     * キー条件で既存エンティティを検索し、なければ新規作成する。
      *
-     * @param Table $table Target table.
-     * @param array<string, mixed> $data Resolved data.
-     * @param string|array<string>|null $keys Key fields for lookup.
+     * @param \Cake\ORM\Table $table 対象テーブル
+     * @param array<string, mixed> $data 解決済みデータ
+     * @param string|array<string>|null $keys 検索キーフィールド
      * @return \Cake\ORM\Entity
      */
     protected function findOrCreateEntity(Table $table, array $data, string|array|null $keys)
@@ -407,14 +418,13 @@ class ScenarioLoader
     }
 
     /**
-     * Serialize JSON-type columns before persistence.
+     * 永続化前にJSON型カラムをシリアライズする。
      *
-     * Only 'text' columns need manual encoding here: 'json' columns are already
-     * handled by the ORM's own JsonType at save time, so pre-encoding those would
-     * double-encode the value (array -> string -> re-encoded string).
+     * ORMのJsonTypeは保存時に自動エンコードされるため、json型のカラムは
+     * 手動エンコード不要。text型のカラムのみ手動でJSONエンコードする。
      *
-     * @param Table $table Target table.
-     * @param array<string, mixed> $record Record data.
+     * @param \Cake\ORM\Table $table 対象テーブル
+     * @param array<string, mixed> $record レコードデータ
      * @return array<string, mixed>
      */
     protected function serializeJsonColumns(Table $table, array $record): array
@@ -432,17 +442,17 @@ class ScenarioLoader
     }
 
     /**
-     * Collect all YAML files from a scenario directory.
+     * シナリオディレクトリから全YAMLファイルを収集する。
      *
-     * @param string $scenarioPath Path to the scenario directory.
-     * @return array<string> Sorted array of YAML file paths.
+     * @param string $scenarioPath シナリオディレクトリのパス
+     * @return array<string> ソート済みのYAMLファイルパス配列
      */
     protected function collectYamlFilesFromScenario(string $scenarioPath): array
     {
         $files = [];
 
         if (is_file($scenarioPath)) {
-            // Single file
+            // 単一ファイル
             return [$scenarioPath];
         }
 
@@ -465,14 +475,14 @@ class ScenarioLoader
     }
 
     /**
-     * Order YAML files based on data dependencies extracted from ref: references.
+     * YAMLファイルをデータ依存関係に基づいて並べ替える。
      *
-     * Builds a dependency graph where each file's dependencies are determined by
-     * the ref: labels it references, and returns files in topological sort order.
+     * 各YAMLファイルが参照する ref: ラベルから依存グラフを構築し、
+     * トポロジカルソート順でファイルを返す。
      *
-     * @param array<string> $yamlFiles List of YAML file paths.
-     * @return array<string> Files ordered by dependency (dependents first).
-     * @throws RuntimeException On circular dependency detection.
+     * @param array<string> $yamlFiles YAMLファイルパスのリスト
+     * @return array<string> 依存順に並べ替えられたファイルパス（依存先優先）
+     * @throws \RuntimeException 循環依存を検出した場合
      */
     protected function orderFilesByDependency(array $yamlFiles): array
     {
@@ -485,13 +495,13 @@ class ScenarioLoader
     }
 
     /**
-     * Build a dependency graph where each file maps to the files it depends on.
+     * 依存グラフを構築する。
      *
-     * For each file, extract all ref: references, then determine which other files
-     * contain records with those _ref labels. Those source files are dependencies.
+     * 各ファイルから ref: 参照を抽出し、どのファイルがどの _ref ラベルを
+     * 定義しているかに基づいて依存関係を特定する。
      *
-     * @param array<string> $yamlFiles List of YAML file paths.
-     * @return array<string, array<string>> Dependency graph: filePath => [dependencyFilePaths].
+     * @param array<string> $yamlFiles YAMLファイルパスのリスト
+     * @return array<string, array<string>> 依存グラフ: filePath => [依存ファイルパス]
      */
     protected function buildDependencyGraph(array $yamlFiles): array
     {
@@ -537,12 +547,12 @@ class ScenarioLoader
     }
 
     /**
-     * Perform topological sort on the dependency graph using Kahn's algorithm.
+     * 依存グラフをトポロジカルソートする（Kahnのアルゴリズム）。
      *
-     * @param array<string> $yamlFiles List of YAML file paths.
-     * @param array<string, array<string>> $graph Dependency graph.
-     * @return array<string> Sorted file list (dependencies before dependents).
-     * @throws RuntimeException On circular dependency detection.
+     * @param array<string> $yamlFiles YAMLファイルパスのリスト
+     * @param array<string, array<string>> $graph 依存グラフ
+     * @return array<string> ソート済みファイルリスト（依存先優先）
+     * @throws \RuntimeException 循環依存を検出した場合
      */
     protected function topologicalSort(array $yamlFiles, array $graph): array
     {
@@ -584,22 +594,19 @@ class ScenarioLoader
     }
 
     /**
-     * Resolve table name from a YAML file path.
+     * YAMLファイルパスからCakePHPテーブルエイリアスを解決する。
      *
-     * Removes any leading numeric prefix (e.g., "01_", "01-", "02_", "02-") from the filename
-     * before converting to table name format. This allows organizing files with
-     * sequence numbers while maintaining clean table names.
+     * ファイル名の先頭数字プレフィックス（例: "01_", "01-"）を除去してから
+     * テーブル名形式に変換する。これにより、シーケンス番号付きファイルを
+     * 整理しつつクリーンなテーブル名を維持できる。
      *
-     * Examples:
+     * 例:
      *   01_groups.yml       → groups
-     *   01-groups.yml       → groups
      *   02_users.yml        → users
-     *   02-users.yml        → users
      *   03_shop_products.yml → shop_products
-     *   03-shop_products.yml → shop_products
      *
-     * @param string $filePath Absolute path to the YAML file.
-     * @return string Table name (CakePHP table alias).
+     * @param string $filePath YAMLファイルの絶対パス
+     * @return string テーブル名（CakePHPテーブルエイリアス）
      */
     protected function resolveTableNameFromFile(string $filePath): string
     {
@@ -614,11 +621,13 @@ class ScenarioLoader
     }
 
     /**
-     * Resolve scenario name to absolute file path.
+     * シナリオ名から絶対ファイルパスを解決する。
      *
-     * @param string $scenarioName Scenario name (filename without extension or directory).
-     * @return string Absolute path to the YAML file.
-     * @throws RuntimeException If path cannot be resolved.
+     * .yaml → .yml → ディレクトリの順で解決を試みる。
+     *
+     * @param string $scenarioName シナリオ名（拡張子なしのファイル名またはディレクトリ名）
+     * @return string 解決された絶対パス
+     * @throws \RuntimeException パスが解決できない場合
      */
     protected function resolvePath(string $scenarioName): string
     {
@@ -646,11 +655,11 @@ class ScenarioLoader
     }
 
     /**
-     * Parse a YAML file into records.
+     * YAMLファイルをレコード配列にパースする。
      *
-     * @param string $filePath Path to YAML file.
+     * @param string $filePath YAMLファイルのパス
      * @return array<int, array<string, mixed>>
-     * @throws RuntimeException If file is unreadable or invalid.
+     * @throws \RuntimeException ファイルが読み取れないか無効な場合
      */
     protected function parseYaml(string $filePath): array
     {

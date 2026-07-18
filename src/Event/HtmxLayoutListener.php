@@ -17,7 +17,9 @@ use Cake\Event\EventListenerInterface;
 class HtmxLayoutListener implements EventListenerInterface
 {
     /**
-     * @return array<string, mixed>
+     * 購読するイベントの一覧を返す。
+     *
+     * @return array<string, mixed> イベント名をキー、ハンドラメソッド名を値とする連想配列
      */
     public function implementedEvents(): array
     {

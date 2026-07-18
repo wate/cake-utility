@@ -28,7 +28,7 @@ use function Cake\I18n\__d;
 class AuditLogPurgeCommand extends Command
 {
     /**
-     * オプションの設定
+     * コマンドラインオプションの設定
      *
      * @param \Cake\Console\ConsoleOptionParser $parser パーサー
      * @return \Cake\Console\ConsoleOptionParser
@@ -54,6 +54,8 @@ class AuditLogPurgeCommand extends Command
 
     /**
      * コマンド実行
+     *
+     * AuditLogPurgeService を呼び出してパージを実行し、結果を出力する。
      *
      * @param \Cake\Console\Arguments $args 引数
      * @param \Cake\Console\ConsoleIo $io 入出力

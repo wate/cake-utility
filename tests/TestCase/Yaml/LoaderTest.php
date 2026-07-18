@@ -9,10 +9,27 @@ use CakeUtility\Yaml\Loader;
 use Cake\Database\Schema\TableSchema;
 use RuntimeException;
 
+/**
+ * LoaderTest
+ *
+ * Yaml\Loader のパース・参照解決・型キャストの各機能を検証する。
+ */
 class LoaderTest extends TestCase
 {
-    protected $Loader;
+    /**
+     * テスト対象のローダーインスタンス
+     *
+     * @var \CakeUtility\Yaml\Loader
+     */
+    protected Loader $Loader;
 
+    /**
+     * テスト前処理
+     *
+     * Loaderインスタンスを生成する。
+     *
+     * @return void
+     */
     public function setUp(): void
     {
         parent::setUp();
@@ -45,7 +62,9 @@ YAML;
     }
 
     /**
-     * @now, @today の解決を検証します。
+     * @now や @today などの日時予約語が正しく解決されることを検証する。
+     *
+     * @return void
      */
     public function testResolveDatetime(): void
     {
@@ -69,6 +88,8 @@ YAML;
 
     /**
      * setTodayBoundary による @today の挙動変更を検証します。
+     *
+     * @return void
      */
     public function testTodayBoundary(): void
     {
@@ -95,6 +116,8 @@ YAML;
 
     /**
      * ref:label による参照解決を検証します。
+     *
+     * @return void
      */
     public function testResolveReference(): void
     {
@@ -110,6 +133,8 @@ YAML;
 
     /**
      * 未定義の参照がある場合に例外がスローされることを検証します。
+     *
+     * @return void
      */
     public function testResolveReferenceNotFound(): void
     {
@@ -124,6 +149,8 @@ YAML;
 
     /**
      * スキーマに基づいた型キャストを検証します。
+     *
+     * @return void
      */
     public function testResolveWithSchema(): void
     {
@@ -151,6 +178,8 @@ YAML;
 
     /**
      * extractReferences によるref:参照の抽出を検証します。
+     *
+     * @return void
      */
     public function testExtractReferences(): void
     {
@@ -181,6 +210,8 @@ YAML;
 
     /**
      * extractReferences で ref: 参照がないファイルを処理する場合を検証します。
+     *
+     * @return void
      */
     public function testExtractReferencesNoReferences(): void
     {
@@ -203,6 +234,8 @@ YAML;
 
     /**
      * extractReferences でネストされたref:参照を抽出する場合を検証します。
+     *
+     * @return void
      */
     public function testExtractReferencesNested(): void
     {

@@ -45,17 +45,32 @@ class TestArticlesTable extends Table
 
 /**
  * AuditLogBehaviorTest
+ *
+ * AuditLogBehavior によるモデル変更検知と監査ログ自動記録を検証する。
  */
 class AuditLogBehaviorTest extends TestCase
 {
+    /**
+     * テストデータベース接続
+     *
+     * @var \Cake\Database\Connection
+     */
     private Connection $connection;
 
+    /**
+     * テスト用テーブル（TestArticlesTable）のインスタンス
+     *
+     * @var \Cake\ORM\Table
+     */
     private Table $articlesTable;
 
     /**
      * テストクラス全体で1度だけテーブルを準備する。
+     *
      * プロジェクトルートからの実行時はマイグレーションでテーブルを作成し、
      * プラグイン単体の実行時は bootstrap.php が schema.sql を読み込むため何もしない。
+     *
+     * @return void
      */
     public static function setUpBeforeClass(): void
     {
@@ -92,6 +107,13 @@ class AuditLogBehaviorTest extends TestCase
         }
     }
 
+    /**
+     * テスト前処理
+     *
+     * AuditLog設定の初期化とテストテーブルのクリーンアップを行う。
+     *
+     * @return void
+     */
     public function setUp(): void
     {
         parent::setUp();
@@ -122,6 +144,13 @@ class AuditLogBehaviorTest extends TestCase
         ]);
     }
 
+    /**
+     * テスト後処理
+     *
+     * テストデータとAuditLog設定をクリアする。
+     *
+     * @return void
+     */
     public function tearDown(): void
     {
         parent::tearDown();

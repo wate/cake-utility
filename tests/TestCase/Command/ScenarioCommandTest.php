@@ -20,14 +20,42 @@ use CakeUtility\Command\ScenarioCommand;
  */
 class ScenarioCommandTest extends TestCase
 {
+    /**
+     * 標準出力のスタブ
+     *
+     * @var \Cake\Console\TestSuite\StubConsoleOutput
+     */
     protected StubConsoleOutput $out;
 
+    /**
+     * 標準エラー出力のスタブ
+     *
+     * @var \Cake\Console\TestSuite\StubConsoleOutput
+     */
     protected StubConsoleOutput $err;
 
+    /**
+     * コンソール入出力
+     *
+     * @var \Cake\Console\ConsoleIo
+     */
     protected ConsoleIo $io;
 
+    /**
+     * シナリオYAMLファイルのベースディレクトリ
+     *
+     * @var string
+     */
     protected string $baseDir;
 
+    /**
+     * テスト前処理
+     *
+     * テスト用SQLiteデータベースの作成、スキーマの適用、
+     * コンソール入出力のスタブ生成を行う。
+     *
+     * @return void
+     */
     public function setUp(): void
     {
         parent::setUp();
@@ -70,6 +98,13 @@ class ScenarioCommandTest extends TestCase
         $this->io = new ConsoleIo($this->out, $this->err);
     }
 
+    /**
+     * テスト後処理
+     *
+     * 全テーブルのテストデータとTableLocatorキャッシュをクリアする。
+     *
+     * @return void
+     */
     public function tearDown(): void
     {
         $tables = ['shop_products', 'products', 'shops', 'profiles', 'users', 'groups'];
@@ -87,6 +122,8 @@ class ScenarioCommandTest extends TestCase
      * クラッシュせず動作することを検証する。
      * (修正前は $table=null が ScenarioLoader::load() の非nullable string引数に
      * 渡され TypeError が発生していた)
+     *
+     * @return void
      */
     public function testLoadWithoutExplicitTableResolvesFromFilename(): void
     {
@@ -102,6 +139,8 @@ class ScenarioCommandTest extends TestCase
 
     /**
      * テーブル名を明示指定した場合の読み込みを検証する。
+     *
+     * @return void
      */
     public function testLoadWithExplicitTable(): void
     {
@@ -122,6 +161,8 @@ class ScenarioCommandTest extends TestCase
     /**
      * `clear` の削除件数がコマンド出力に正しく反映されることを検証する。
      * (修正前は ScenarioLoader::clear() の戻り値が握りつぶされ常に0件表示だった)
+     *
+     * @return void
      */
     public function testClearReportsAccurateDeletedCount(): void
     {
@@ -149,6 +190,8 @@ class ScenarioCommandTest extends TestCase
 
     /**
      * ベースディレクトリが存在しない場合はエラー終了することを検証する。
+     *
+     * @return void
      */
     public function testMissingBaseDirReturnsError(): void
     {

@@ -30,7 +30,7 @@ use function Cake\I18n\__d;
 class ScenarioCommand extends Command
 {
     /**
-     * コマンドの名前
+     * コマンドのデフォルト名を返す。
      *
      * @return string
      */
@@ -40,7 +40,7 @@ class ScenarioCommand extends Command
     }
 
     /**
-     * コマンドの説明
+     * コマンドの説明を返す。
      *
      * @return string
      */
@@ -50,7 +50,7 @@ class ScenarioCommand extends Command
     }
 
     /**
-     * コマンドのヘルプ
+     * コマンドのヘルプテキストを返す。
      *
      * @return string
      */

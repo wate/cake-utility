@@ -19,24 +19,48 @@ use function Cake\I18n\__d;
  */
 class SpreadsheetRowReader implements RowReaderInterface
 {
-    /** @var string|null */
+    /**
+     * 読み込むシート名（nullで最初のシート）
+     *
+     * @var string|null
+     */
     private ?string $sheetName;
 
-    /** @var bool|int ヘッダー行数。true=1行, false=なし, int=指定行数 */
+    /**
+     * ヘッダー行数
+     *
+     * true=1行, false=なし, int=指定行数
+     *
+     * @var bool|int
+     */
     private bool|int $headerRows;
 
-    /** @var Worksheet|null */
+    /**
+     * 現在処理中のワークシート
+     *
+     * @var \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet|null
+     */
     private ?Worksheet $sheet = null;
 
-    /** @var array<string>|null */
+    /**
+     * ヘッダー行のカラム名配列
+     *
+     * @var array<string>|null
+     */
     private ?array $headerRow = null;
 
-    /** @var array<int, array{row: int, message: string, data: array<string, mixed>}> */
+    /**
+     * パースエラー一覧
+     *
+     * @var array<int, array{row: int, message: string, data: array<string, mixed>}>
+     */
     private array $errors = [];
 
     /**
+     * コンストラクタ
+     *
      * @param string|null $sheetName 読み込むシート名（nullで最初のシート）
-     * @param bool|int $headerRows ヘッダー行数。true=1行, false=なし, 数値=指定行数（カラム名は最終行を採用）
+     * @param bool|int $headerRows ヘッダー行数（true=1行, false=なし, 数値=指定行数、カラム名は最終行を採用）
      * @throws \RuntimeException PhpSpreadsheetがインストールされていない場合
      */
     public function __construct(

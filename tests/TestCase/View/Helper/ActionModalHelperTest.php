@@ -15,15 +15,23 @@ use CakeUtility\View\Helper\ActionModalHelper;
 
 /**
  * ActionModalHelperTest
+ *
+ * ActionModalHelper のボタン出力とdata-*属性の各種パターンを検証する。
  */
 class ActionModalHelperTest extends TestCase
 {
     /**
+     * テスト対象のヘルパーインスタンス
+     *
      * @var \CakeUtility\View\Helper\ActionModalHelper
      */
     protected ActionModalHelper $helper;
 
     /**
+     * テスト前処理
+     *
+     * ルートの初期化、View/Helperインスタンスの生成を行う。
+     *
      * @return void
      */
     public function setUp(): void

@@ -13,13 +13,30 @@ use Cake\Database\TypeFactory;
 
 /**
  * ScenarioLoaderTest
+ *
+ * ScenarioLoader によるYAMLシナリオの投入・削除・参照解決を検証する。
  */
 class ScenarioLoaderTest extends TestCase
 {
+    /**
+     * @var array<string>
+     */
     protected array $fixtures = [];
 
+    /**
+     * データベース接続
+     *
+     * @var \Cake\Database\Connection|null
+     */
     protected $connection = null;
 
+    /**
+     * テスト前処理
+     *
+     * テストデータのクリアとテーブルスキーマ定義のセットアップを行う。
+     *
+     * @return void
+     */
     public function setUp(): void
     {
         parent::setUp();
@@ -35,6 +52,13 @@ class ScenarioLoaderTest extends TestCase
         $this->setupTableDefinitions();
     }
 
+    /**
+     * テスト後処理
+     *
+     * 全テーブルのテストデータとTableLocatorキャッシュをクリアする。
+     *
+     * @return void
+     */
     public function tearDown(): void
     {
         // Clear data from tables to ensure isolation between tests
@@ -50,6 +74,13 @@ class ScenarioLoaderTest extends TestCase
         parent::tearDown();
     }
 
+    /**
+     * テーブルスキーマ定義をセットアップする。
+     *
+     * SQLiteではJSON/Boolean型が正しく認識されないため、明示的にカラム型を定義する。
+     *
+     * @return void
+     */
     protected function setupTableDefinitions(): void
     {
         // Explicitly define column types for tables to ensure the ORM handles
@@ -81,6 +112,11 @@ class ScenarioLoaderTest extends TestCase
         TypeFactory::set('json', new \Cake\Database\Type\JsonType());
     }
 
+    /**
+     * YAMLシナリオのロードと参照解決（ref:ラベルの解決、型キャスト）を検証する。
+     *
+     * @return void
+     */
     public function testScenarioLoadingWithRefResolution(): void
     {
         $tableLocator = TableRegistry::getTableLocator();
@@ -100,6 +136,11 @@ class ScenarioLoaderTest extends TestCase
         $this->assertArrayHasKey('category', $shopProduct->meta_json);
     }
 
+    /**
+     * 初回ロードで挿入、2回目ロードで更新（upsert）が正しくカウントされることを検証する。
+     *
+     * @return void
+     */
     public function testInsertAndUpdateCounting(): void
     {
         $tableLocator = TableRegistry::getTableLocator();
@@ -119,6 +160,12 @@ class ScenarioLoaderTest extends TestCase
         $this->assertGreaterThan(0, $secondUpdateCount);
     }
 
+    /**
+     * ロードしたシナリオをクリアすると、削除件数が正しく返され、
+     * テーブルが空になることを検証する。
+     *
+     * @return void
+     */
     public function testScenarioClear(): void
     {
         $tableLocator = TableRegistry::getTableLocator();
@@ -141,6 +188,11 @@ class ScenarioLoaderTest extends TestCase
         $this->assertEquals(0, $countAfter);
     }
 
+    /**
+     * 存在しない ref: ラベルを参照すると RuntimeException がスローされることを検証する。
+     *
+     * @return void
+     */
     public function testInvalidRefThrowsException(): void
     {
         $tableLocator = TableRegistry::getTableLocator();

@@ -15,17 +15,22 @@ use CakeUtility\Command\AuditLogPurgeCommand;
 use CakeUtility\Event\HtmxLayoutListener;
 
 /**
- * Plugin for CakeUtility
+ * CakeUtility プラグイン
+ *
+ * 監査ログ(AuditLog)、インポート(Import)、YAMLシナリオ、
+ * HTMX連携、ロケール自動判定などの共通機能を提供するプラグイン。
+ * アプリケーションのブートストラップ時に設定の読み込みと
+ * イベントリスナーの登録を行う。
  */
 class CakeUtilityPlugin extends BasePlugin
 {
     /**
-     * Load all the plugin configuration and bootstrap logic.
+     * プラグインの設定読み込みとブートストラップ処理を実行する。
      *
-     * The host application is provided as an argument. This allows you to load
-     * additional plugin dependencies, or attach events.
+     * プラグイン設定ファイル(cake_utility.php)を読み込み、HTMXレイアウト自動無効化の
+     * イベントリスナーを設定により登録する。
      *
-     * @param \Cake\Core\PluginApplicationInterface $app The host application
+     * @param \Cake\Core\PluginApplicationInterface $app ホストアプリケーション
      * @return void
      */
     public function bootstrap(PluginApplicationInterface $app): void
@@ -43,17 +48,15 @@ class CakeUtilityPlugin extends BasePlugin
     }
 
     /**
-     * Add routes for the plugin.
+     * プラグインのルートを追加する。
      *
-     * If your plugin has many routes and you would like to isolate them into a separate file,
-     * you can create `$plugin/config/routes.php` and delete this method.
+     * /cake-utility パスの配下にプラグインルートを設定する。
      *
-     * @param \Cake\Routing\RouteBuilder $routes The route builder to update.
+     * @param \Cake\Routing\RouteBuilder $routes 更新対象のルートビルダー
      * @return void
      */
     public function routes(RouteBuilder $routes): void
     {
-        // remove this method hook if you don't need it
         $routes->plugin(
             'CakeUtility',
             ['path' => '/cake-utility'],
@@ -67,23 +70,22 @@ class CakeUtilityPlugin extends BasePlugin
     }
 
     /**
-     * Add middleware for the plugin.
+     * プラグインのミドルウェアを追加する。
      *
-     * @param \Cake\Http\MiddlewareQueue $middlewareQueue The middleware queue to update.
+     * @param \Cake\Http\MiddlewareQueue $middlewareQueue 更新対象のミドルウェアキュー
      * @return \Cake\Http\MiddlewareQueue
      */
     public function middleware(MiddlewareQueue $middlewareQueue): MiddlewareQueue
     {
-        // Add your middlewares here
-        // remove this method hook if you don't need it
-
         return $middlewareQueue;
     }
 
     /**
-     * Add commands for the plugin.
+     * プラグインのコンソールコマンドを追加する。
      *
-     * @param \Cake\Console\CommandCollection $commands The command collection to update.
+     * audit_log_purge コマンドを登録する。
+     *
+     * @param \Cake\Console\CommandCollection $commands 更新対象のコマンドコレクション
      * @return \Cake\Console\CommandCollection
      */
     public function console(CommandCollection $commands): CommandCollection
@@ -96,15 +98,14 @@ class CakeUtilityPlugin extends BasePlugin
     }
 
     /**
-     * Register application container services.
+     * アプリケーションコンテナのサービスを登録する。
      *
-     * @param \Cake\Core\ContainerInterface $container The Container to update.
+     * @param \Cake\Core\ContainerInterface $container 更新対象のコンテナ
      * @return void
      * @link https://book.cakephp.org/5/en/development/dependency-injection.html#dependency-injection
      */
     public function services(ContainerInterface $container): void
     {
         // Add your services here
-        // remove this method hook if you don't need it
     }
 }

@@ -13,13 +13,14 @@ use Psr\Http\Server\RequestHandlerInterface;
 /**
  * LocaleMiddleware
  *
- * Automatically detects and sets the application locale based on request headers,
- * query parameters, or session-based user preferences.
- *
- * @var array $config Configuration for supported locales and default fallback.
+ * リクエストヘッダー、クエリパラメータ、Cookieに基づいて
+ * アプリケーションのロケールを自動検出・設定するミドルウェア。
  */
 class LocaleMiddleware implements MiddlewareInterface
 {
+    /**
+     * @var array<string, mixed> 設定オプション
+     */
     protected $config = [
         'parameter' => 'lang',
         'cookie' => [
@@ -33,8 +34,7 @@ class LocaleMiddleware implements MiddlewareInterface
     /**
      * Constructor
      *
-     * @param array<string, mixed> $config The options to use.
-     * @see \Cake\Http\Middleware\HttpsEnforcerMiddleware::$config
+     * @param array<string, mixed> $config 設定オプション
      */
     public function __construct(array $config = [])
     {
@@ -42,10 +42,13 @@ class LocaleMiddleware implements MiddlewareInterface
     }
 
     /**
-     * Process the request and add rate limiting
+     * リクエストを処理し、ロケールを設定する。
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request The request
-     * @param \Psr\Http\Server\RequestHandlerInterface $handler The handler
+     * URLパラメータ → Cookie → Accept-Languageヘッダーの優先順位でロケールを決定し、
+     * レスポンスにロケールCookieを設定する。
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request リクエスト
+     * @param \Psr\Http\Server\RequestHandlerInterface $handler ハンドラ
      * @return \Psr\Http\Message\ResponseInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface

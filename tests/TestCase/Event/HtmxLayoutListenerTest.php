@@ -13,11 +13,13 @@ use CakeUtility\Event\HtmxLayoutListener;
 
 /**
  * HtmxLayoutListenerTest
+ *
+ * HTMXリクエスト検出によるレイアウト自動無効化の動作を検証する。
  */
 class HtmxLayoutListenerTest extends TestCase
 {
     /**
-     * HX-Requestヘッダーがある場合にレイアウトが無効化されるかテスト
+     * HX-Requestヘッダーがある場合にレイアウトが無効化されることを検証する。
      *
      * @return void
      */
@@ -38,7 +40,7 @@ class HtmxLayoutListenerTest extends TestCase
     }
 
     /**
-     * HX-Requestヘッダーがない場合にレイアウトが維持されるかテスト
+     * HX-Requestヘッダーがない場合にレイアウトが維持されることを検証する。
      *
      * @return void
      */
@@ -58,7 +60,7 @@ class HtmxLayoutListenerTest extends TestCase
     }
 
     /**
-     * implementedEvents() が正しいイベント名を返すかテスト
+     * implementedEvents() が正しいイベント名とハンドラを返すことを検証する。
      *
      * @return void
      */

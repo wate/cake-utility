@@ -9,6 +9,12 @@ namespace CakeUtility\Import;
  *
  * インポートするファイルのフォーマット抽象。
  * CSVやExcelなど、異なるフォーマットのリーダーはこのインターフェースを実装する。
+ *
+ * @method void open(string $filePath)
+ * @method array<string> headers()
+ * @method iterable<array<string, mixed>> rows()
+ * @method array<int, array{row: int, message: string, data: array<string, mixed>}> errors()
+ * @method void close()
  */
 interface RowReaderInterface
 {

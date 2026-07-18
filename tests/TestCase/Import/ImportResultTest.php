@@ -15,6 +15,11 @@ use Cake\Datasource\EntityInterface;
  */
 class ImportResultTest extends TestCase
 {
+    /**
+     * 成功のみの結果を検証する。
+     *
+     * @return void
+     */
     public function testSuccessOnly(): void
     {
         $entity = $this->createMock(EntityInterface::class);
@@ -27,6 +32,11 @@ class ImportResultTest extends TestCase
         $this->assertTrue($result->isSuccess());
     }
 
+    /**
+     * エラーを含む結果を検証する。
+     *
+     * @return void
+     */
     public function testWithErrors(): void
     {
         $entity = $this->createMock(EntityInterface::class);
@@ -42,6 +52,11 @@ class ImportResultTest extends TestCase
         $this->assertSame($errors, $result->rowErrors());
     }
 
+    /**
+     * 全件失敗の結果を検証する。
+     *
+     * @return void
+     */
     public function testAllFailed(): void
     {
         $errors = [

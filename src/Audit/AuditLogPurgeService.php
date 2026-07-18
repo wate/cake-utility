@@ -16,15 +16,27 @@ use Cake\ORM\Table;
  * AuditLogPurgeService
  *
  * 保持期間超過レコードのパージ処理（CSV出力→DB削除→古いCSV削除）を担当する。
- * ComponentとCommandの両方から共通して利用される。
+ * ComponentとCommandの両方から共通して利用されるサービス。
  */
 class AuditLogPurgeService
 {
+    /**
+     * 使用するDB接続名
+     *
+     * @var string
+     */
     private string $connectionName;
 
+    /**
+     * audit_logs テーブルのインスタンス
+     *
+     * @var \Cake\ORM\Table
+     */
     private Table $auditLogsTable;
 
     /**
+     * コンストラクタ
+     *
      * @param string $connectionName 使用するDB接続名（省略時は 'default'）
      */
     public function __construct(string $connectionName = 'default')

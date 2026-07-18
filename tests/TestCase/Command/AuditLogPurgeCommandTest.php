@@ -19,14 +19,39 @@ use CakeUtility\Command\AuditLogPurgeCommand;
  */
 class AuditLogPurgeCommandTest extends TestCase
 {
+    /**
+     * テスト対象のコマンドインスタンス
+     *
+     * @var \CakeUtility\Command\AuditLogPurgeCommand
+     */
     private AuditLogPurgeCommand $command;
 
+    /**
+     * 標準出力のスタブ
+     *
+     * @var \Cake\Console\TestSuite\StubConsoleOutput
+     */
     private StubConsoleOutput $out;
 
+    /**
+     * 標準エラー出力のスタブ
+     *
+     * @var \Cake\Console\TestSuite\StubConsoleOutput
+     */
     private StubConsoleOutput $err;
 
+    /**
+     * コンソール入出力
+     *
+     * @var \Cake\Console\ConsoleIo
+     */
     private ConsoleIo $io;
 
+    /**
+     * CSVエクスポートディレクトリ（テスト用）
+     *
+     * @var string
+     */
     private string $csvExportDir;
 
     /**
@@ -69,6 +94,14 @@ class AuditLogPurgeCommandTest extends TestCase
         }
     }
 
+    /**
+     * テスト前処理
+     *
+     * CSVエクスポートディレクトリの作成、AuditLog設定の初期化、
+     * コマンドインスタンスの生成を行う。
+     *
+     * @return void
+     */
     public function setUp(): void
     {
         parent::setUp();
@@ -89,6 +122,13 @@ class AuditLogPurgeCommandTest extends TestCase
         $this->io = new ConsoleIo($this->out, $this->err);
     }
 
+    /**
+     * テスト後処理
+     *
+     * テストデータとCSVエクスポートディレクトリをクリーンアップする。
+     *
+     * @return void
+     */
     public function tearDown(): void
     {
         parent::tearDown();
@@ -140,11 +180,11 @@ class AuditLogPurgeCommandTest extends TestCase
     }
 
     /**
-     * ヘルパー: テスト用レコードを挿入する。
+     * テスト用レコードを挿入するヘルパーメソッド。
      *
      * @param string $category カテゴリー
      * @param string $action アクション
-     * @param string $createdFromNow createdに設定する相対日時
+     * @param string $createdFromNow createdに設定する相対日時（例: '-40 days'）
      * @return void
      */
     private function insertTestRecords(string $category, string $action, string $createdFromNow): void

@@ -3,9 +3,10 @@
 declare(strict_types=1);
 
 /**
- * Test bootstrap for CakeUtility plugin.
+ * CakeUtility プラグインのテスト用ブートストラップ
  *
- * Self-contained bootstrap that loads the plugin's own vendor autoloader.
+ * プラグイン単体でテストを実行するための自己完結型ブートストラップ。
+ * 独自のSQLiteデータベースをセットアップし、スキーマを適用する。
  */
 
 require dirname(__DIR__) . '/vendor/autoload.php';

@@ -63,6 +63,7 @@ class AuditLogComponent extends Component
 
     /**
      * 保持期間超過レコードをパージする。
+     *
      * AuditLogPurgeService に処理を委譲する。
      *
      * @return void

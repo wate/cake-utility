@@ -15,6 +15,11 @@ use Cake\Datasource\EntityInterface;
  */
 class PreviewResultTest extends TestCase
 {
+    /**
+     * コンストラクタとアクセサメソッドを検証する。
+     *
+     * @return void
+     */
     public function testConstructAndAccessors(): void
     {
         $entity = $this->createMock(EntityInterface::class);
@@ -30,6 +35,11 @@ class PreviewResultTest extends TestCase
         $this->assertSame($errors, $result->rowErrors());
     }
 
+    /**
+     * 空の結果を検証する。
+     *
+     * @return void
+     */
     public function testEmptyResult(): void
     {
         $result = new PreviewResult([]);
@@ -40,6 +50,11 @@ class PreviewResultTest extends TestCase
         $this->assertSame([], $result->rowErrors());
     }
 
+    /**
+     * 複数エラーを含む結果を検証する。
+     *
+     * @return void
+     */
     public function testMultipleErrors(): void
     {
         $entity1 = $this->createMock(EntityInterface::class);

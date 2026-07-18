@@ -18,8 +18,20 @@ use CakeUtility\Import\ImportWorkflow;
  */
 class ImportWorkflowTest extends TestCase
 {
+    /**
+     * テストフィクスチャファイルのディレクトリパス
+     *
+     * @var string
+     */
     private string $fixturePath;
 
+    /**
+     * テスト前処理
+     *
+     * フィクスチャファイルのパスを設定する。
+     *
+     * @return void
+     */
     public function setUp(): void
     {
         parent::setUp();
