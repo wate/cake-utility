@@ -47,13 +47,6 @@ return [
         'disableAutoLayout' => true,
     ],
 
-    'I18n' => [
-        // デフォルトロケール
-        'defaultLocale' => 'ja_JP',
-        // サポートするロケール一覧
-        'supportedLocales' => ['ja_JP', 'en_US'],
-    ],
-
     'Scenario' => [
         // シナリオファイルのベースディレクトリ（ScenarioLoader のデフォルトパス）
         'baseDir' => 'config/Seeds/data',

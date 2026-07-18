@@ -14,7 +14,6 @@ CakeUtilityプラグインの各機能は、デフォルト設定ファイルと
 return [
     'AuditLog' => [ /* ... */ ],
     'Htmx' => [ /* ... */ ],
-    'I18n' => [ /* ... */ ],
     'Scenario' => [ /* ... */ ],
 ];
 ```
@@ -75,16 +74,6 @@ HTMXリクエスト時のレイアウト制御を設定します。
 #### 参照しているクラス
 
 - `CakeUtilityPlugin::bootstrap()` - 自動無効化のON/OFFを判断
-
-### I18n - 多言語対応(将来拡張用)
-
-ロケール自動切り替えのデフォルト値を設定します。
-現在の `LocaleMiddleware` はCakePHP標準の `App.paths.locales`/`App.defaultLocale` を参照するため、このセクションは将来の拡張用の定義として保持しています。
-
-| キー                  | 型     | デフォルト         | 説明                     |
-|-----------------------|--------|--------------------|--------------------------|
-| `I18n.defaultLocale`  | string | `'ja_JP'`          | デフォルトロケール       |
-| `I18n.supportedLocales` | array  | `['ja_JP', 'en_US']` | サポートするロケール一覧 |
 
 ### Scenario - シナリオデータ管理
 

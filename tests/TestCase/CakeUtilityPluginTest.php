@@ -60,8 +60,6 @@ class CakeUtilityPluginTest extends TestCase
 
         $this->assertSame(90, Configure::read('AuditLog.retentionDays'));
         $this->assertSame(true, Configure::read('Htmx.disableAutoLayout'));
-        $this->assertSame('ja_JP', Configure::read('I18n.defaultLocale'));
-        $this->assertSame(['ja_JP', 'en_US'], Configure::read('I18n.supportedLocales'));
         $this->assertSame('config/Seeds/data', Configure::read('Scenario.baseDir'));
     }
 

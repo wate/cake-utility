@@ -234,38 +234,38 @@ $result = $importWorkflow->execute($entities);
 
 ### ImportWorkflow のオプション一覧
 
-| オプション         | 型       | デフォルト           | 説明                                 |
-| ------------------ | -------- | -------------------- | ------------------------------------ |
-| `columnMap`        | array    | `[]`(同名として扱う) | CSV列名 → モデルカラム名のマッピング |
-| `fixed`            | array    | `[]`                 | 全行に一律でセットする値(callable可) |
-| `lookup`           | array    | callable             | `null`                               | FKバッチ解決の設定(配列/インラインマップ/コールバック) |
-| `beforeMarshal`    | callable | null                 | `null`                               | バリデーション前の加工                                 |
-| `beforeSave`       | callable | null                 | `null`                               | 保存前のエンティティ加工                               |
-| `afterSave`        | callable | null                 | `null`                               | 保存完了後のフック                                     |
-| `validate`         | string   | Validator            | `'default'`                          | バリデーションルールセット名またはValidator            |
-| `newEntityOptions` | array    | `[]`                 | `newEntity()` に渡す追加オプション   |
-| `batchSize`        | int      | `0`(分割なし)        | 保存時のバッチ分割サイズ             |
-| `rowFilter`        | callable | null                 | `null`                               | 行フィルター(`false`を返す行をスキップ)                |
-| `upsertKeys`       | array    | null                 | `null`                               | upsert用キーカラム名の配列                             |
+| オプション       | 型       | デフォルト         | 説明                                 |
+|------------------|----------|--------------------|--------------------------------------|
+| `columnMap`      | array    | `[]`(同名として扱う) | CSV列名 → モデルカラム名のマッピング |
+| `fixed`          | array    | `[]`               | 全行に一律でセットする値(callable可) |
+| `lookup`         | array    | callable           | `null`                               | FKバッチ解決の設定(配列/インラインマップ/コールバック) |
+| `beforeMarshal`  | callable | null               | `null`                               | バリデーション前の加工                                 |
+| `beforeSave`     | callable | null               | `null`                               | 保存前のエンティティ加工                               |
+| `afterSave`      | callable | null               | `null`                               | 保存完了後のフック                                     |
+| `validate`       | string   | Validator          | `'default'`                          | バリデーションルールセット名またはValidator            |
+| `newEntityOptions` | array    | `[]`               | `newEntity()` に渡す追加オプション   |
+| `batchSize`      | int      | `0`(分割なし)      | 保存時のバッチ分割サイズ             |
+| `rowFilter`      | callable | null               | `null`                               | 行フィルター(`false`を返す行をスキップ)                |
+| `upsertKeys`     | array    | null               | `null`                               | upsert用キーカラム名の配列                             |
 
 ### RowReader のオプション一覧
 
-| クラス                 | オプション   | 型     | デフォルト | 説明                                           |
-| ---------------------- | ------------ | ------ | ---------- | ---------------------------------------------- |
-| `CsvRowReader`         | `encoding`   | string | `'auto'`   | CSVの文字コード(iconv形式)。`'auto'`で自動検出 |
-| `CsvRowReader`         | `headerRows` | bool   | int        | `true`                                         | ヘッダー行数。`true`=1行, `false`=なし, 数値=指定行数 |
-| `CsvRowReader`         | `delimiter`  | string | `','`      | 区切り文字                                     |
-| `CsvRowReader`         | `enclosure`  | string | `'"'`      | 囲み文字                                       |
-| `CsvRowReader`         | `escape`     | string | `'\\'`     | エスケープ文字                                 |
-| `SpreadsheetRowReader` | `sheetName`  | string | null       | `null`                                         | 読み込むシート名(`null`で最初のシート)                |
+| クラス               | オプション | 型     | デフォルト | 説明                                         |
+|----------------------|------------|--------|------------|----------------------------------------------|
+| `CsvRowReader`       | `encoding` | string | `'auto'`   | CSVの文字コード(iconv形式)。`'auto'`で自動検出 |
+| `CsvRowReader`       | `headerRows` | bool   | int        | `true`                                       | ヘッダー行数。`true`=1行, `false`=なし, 数値=指定行数 |
+| `CsvRowReader`       | `delimiter` | string | `','`      | 区切り文字                                   |
+| `CsvRowReader`       | `enclosure` | string | `'"'`      | 囲み文字                                     |
+| `CsvRowReader`       | `escape`   | string | `'\\'`     | エスケープ文字                               |
+| `SpreadsheetRowReader` | `sheetName` | string | null       | `null`                                       | 読み込むシート名(`null`で最初のシート)            |
 
 ### look up の設定項目
 
-| キー         | 必須 | 説明                                           |
-| ------------ | ---- | ---------------------------------------------- |
-| `table`      | ○    | 参照先のテーブル名またはクラス名               |
-| `from`       | ○    | 検索に使うカラム名(CSV側の値と一致するカラム)  |
-| `default`    | -    | 見つからなかった場合の値(省略時は null)        |
+| キー       | 必須 | 説明                                          |
+|------------|------|-----------------------------------------------|
+| `table`    | ○    | 参照先のテーブル名またはクラス名              |
+| `from`     | ○    | 検索に使うカラム名(CSV側の値と一致するカラム) |
+| `default`  | -    | 見つからなかった場合の値(省略時は null)       |
 | `conditions` | -    | WHERE句の追加条件(例: `['is_active' => true]`) |
 
 ### 戻り値
@@ -273,3 +273,10 @@ $result = $importWorkflow->execute($entities);
 - `preview()`: `PreviewResult` - バリデーション済みエンティティとエラー情報
 - `execute()`: `ImportResult` - 保存成功件数・保存後エンティティ・エラー情報
 - `import()`: `ImportResult` - preview + executeのショートカット
+
+今後の拡張
+-------------------------
+
+- **all-or-nothingモード**: 1行エラーで全件ロールバック。整合性が重要なデータ向け
+- skipモード: upsertではなく、既存レコードがあればスキップする
+- エクスポート機能: クエリ結果をXLSXとしてダウンロード
