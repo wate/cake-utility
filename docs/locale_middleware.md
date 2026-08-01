@@ -17,7 +17,7 @@ Locale Middleware - クイックスタート
 
 1. **URL パラメータ** (`?lang=en_US`): ユーザーの明示的な選択
 2. Cookie: 前回保存された言語設定
-3. Accept-Language ヘッダー: ブラウザの言語設定
+3. Accept-Languageヘッダー: ブラウザの言語設定
 
 この順序により、ユーザーの明示的な操作が最優先されます。
 
@@ -144,4 +144,4 @@ return [
 ブラウザの設定を確認してください
 
 - Cookieを許可しているか
-- 開発環境でlocalhostから発行されたCookieがまさしく保存されているか
+- 開発環境でlocalhostから発行されたCookieが正しく保存されているか
