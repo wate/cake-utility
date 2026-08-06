@@ -1,0 +1,6 @@
+- _ref: user_admin
+  _keys: username
+  id: 500
+  group_id: 1
+  username: 'admin_user'
+  email: 'admin@example.com'

@@ -131,7 +131,7 @@ class ScenarioCommandTest extends TestCase
         $exitCode = $command->run(['load', '--base-dir=' . $this->baseDir], $this->io);
 
         $this->assertSame(ScenarioCommand::CODE_SUCCESS, $exitCode);
-        $this->assertStringContainsString('Total - Inserted: 2, Updated: 0', implode("\n", $this->out->messages()));
+        $this->assertStringContainsString('Total - Inserted: 3, Updated: 0', implode("\n", $this->out->messages()));
 
         $groupsTable = TableRegistry::getTableLocator()->get('Groups');
         $this->assertSame(2, $groupsTable->find()->count());
@@ -199,5 +199,89 @@ class ScenarioCommandTest extends TestCase
         $exitCode = $command->run(['load', '--base-dir=' . $this->baseDir . '/does-not-exist'], $this->io);
 
         $this->assertSame(ScenarioCommand::CODE_ERROR, $exitCode);
+    }
+
+    /**
+     * --unlock-entity-fields=true が executeLoad に true として伝播することを検証する。
+     *
+     * ScenarioLoader 側の $_accessible 解除動作（unlockEntityFields=true/false）は
+     * ScenarioLoaderTest で検証済みのため、ここではコマンドのオプション伝播のみを検証する。
+     *
+     * @return void
+     */
+    public function testLoadWithUnlockEntityFieldsTrue(): void
+    {
+        $command = new ScenarioCommandStub();
+        $exitCode = $command->run([
+            'load',
+            'scenario-command',
+            '--base-dir=' . dirname($this->baseDir),
+            '--unlock-entity-fields=true',
+        ], $this->io);
+
+        $this->assertSame(ScenarioCommand::CODE_SUCCESS, $exitCode);
+        $this->assertTrue($command->capturedUnlock, 'unlock-entity-fields=true should be passed to executeLoad');
+    }
+
+    /**
+     * --unlock-entity-fields=false が executeLoad に false として伝播することを検証する。
+     *
+     * @return void
+     */
+    public function testLoadWithUnlockEntityFieldsFalse(): void
+    {
+        $command = new ScenarioCommandStub();
+        $exitCode = $command->run([
+            'load',
+            'scenario-command',
+            '--base-dir=' . dirname($this->baseDir),
+            '--unlock-entity-fields=false',
+        ], $this->io);
+
+        $this->assertSame(ScenarioCommand::CODE_SUCCESS, $exitCode);
+        $this->assertFalse($command->capturedUnlock, 'unlock-entity-fields=false should be passed to executeLoad');
+    }
+
+    /**
+     * オプション未指定時は executeLoad に null が渡り、ScenarioLoader の初期値(false)に委ねられることを検証する。
+     *
+     * @return void
+     */
+    public function testLoadWithoutUnlockEntityFieldsUsesDefault(): void
+    {
+        $command = new ScenarioCommandStub();
+        $exitCode = $command->run([
+            'load',
+            'scenario-command',
+            '--base-dir=' . dirname($this->baseDir),
+        ], $this->io);
+
+        $this->assertSame(ScenarioCommand::CODE_SUCCESS, $exitCode);
+        $this->assertNull($command->capturedUnlock, 'unlock-entity-fields should default to null (ScenarioLoader default)');
+    }
+}
+
+/**
+ * executeLoad に渡された $unlockEntityFields を捕捉するためのスタブ。
+ *
+ * 実際のDB投入は行わず、オプションの伝播のみを検証する。
+ */
+class ScenarioCommandStub extends ScenarioCommand
+{
+    /**
+     * executeLoad に渡された unlockEntityFields 値
+     *
+     * @var bool|null
+     */
+    public ?bool $capturedUnlock = null;
+
+    /**
+     * @inheritDoc
+     */
+    protected function executeLoad(array $files, ?string $table, string $baseDirPath, ConsoleIo $io, ?bool $unlockEntityFields = null): int
+    {
+        $this->capturedUnlock = $unlockEntityFields;
+
+        return self::CODE_SUCCESS;
     }
 }

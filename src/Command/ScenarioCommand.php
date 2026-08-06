@@ -60,7 +60,7 @@ class ScenarioCommand extends Command
 Load or clear test scenario seed data from YAML files.
 
 Usage:
-  bin/cake scenario <action> [<scenario>] [<table>] [--base-dir=DIR]
+  bin/cake scenario <action> [<scenario>] [<table>] [--base-dir=DIR] [--unlock-entity-fields=true|false]
 
 Arguments:
   action          'load' or 'clear'.
@@ -70,6 +70,10 @@ Arguments:
 Options:
   --base-dir      Base directory containing YAML scenario files.
                   Defaults to: config/Seeds/data
+  --unlock-entity-fields
+                  Unlock entity mass assignment (_accessible) when saving scenario data.
+                  true/false (default: false). Required for scenario data that sets foreign keys
+                  (e.g. hearings.user_id) on entities with restricted _accessible.
 
 Examples:
   bin/cake scenario load                        # Load all YAML files in base directory
@@ -77,6 +81,7 @@ Examples:
   bin/cake scenario load hearings users         # Load users table from hearings
   bin/cake scenario clear hearings              # Clear hearings scenario
   bin/cake scenario load --base-dir=DIR         # Specify base directory
+  bin/cake scenario load e2e-flow --unlock-entity-fields=true  # Unlock mass assignment for scenario data
 TEXT;
     }
 
@@ -104,6 +109,10 @@ TEXT;
             ->addOption('base-dir', [
                 'help' => __d('cake_utility', 'Base directory containing YAML scenario files'),
                 'default' => Configure::read('Scenario.baseDir', 'config/Seeds/data'),
+            ])
+            ->addOption('unlock-entity-fields', [
+                'help' => __d('cake_utility', 'Unlock entity mass assignment (_accessible) when saving scenario data. true/false (default: false).'),
+                'default' => null,
             ]);
 
         return $parser;
@@ -122,6 +131,7 @@ TEXT;
         $scenario = $args->getOption('scenario') ?: $args->getArgument('scenario');
         $table = $args->getOption('table') ?: $args->getArgument('table');
         $baseDir = $args->getOption('base-dir');
+        $unlockEntityFields = $this->parseBooleanOption($args->getOption('unlock-entity-fields'));
 
         // Normalize table name: 'Plugin.TableName' -> 'table_name'
         // This handles both explicit plugin-qualified names and inferred table names
@@ -161,7 +171,25 @@ TEXT;
             return $this->executeClear($scenarioFiles, $table, $baseDirPath, $io);
         }
 
-        return $this->executeLoad($scenarioFiles, $table, $baseDirPath, $io);
+        return $this->executeLoad($scenarioFiles, $table, $baseDirPath, $io, $unlockEntityFields);
+    }
+
+    /**
+     * CLIオプションの文字列値を bool に変換する
+     *
+     * オプション未指定(null)の場合は null を返す（呼び出し側でデフォルトに委ねる）。
+     * 'true'/'1'/'on' → true、'false'/'0'/'off' → false。
+     *
+     * @param string|null $value CLIオプション値
+     * @return bool|null 変換後のbool値（未指定時はnull）
+     */
+    private function parseBooleanOption(?string $value): ?bool
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
     }
 
     /**
@@ -238,11 +266,12 @@ TEXT;
      * @param string|null $table テーブル名（省略時は全テーブル）
      * @param string $baseDirPath ベースディレクトリパス
      * @param ConsoleIo $io I/Oオブジェクト
+     * @param bool|null $unlockEntityFields Entity の $_accessible 制限を一時解除するか（null=シナリオローダーの初期値）
      * @return int
      */
-    protected function executeLoad(array $files, ?string $table, string $baseDirPath, ConsoleIo $io): int
+    protected function executeLoad(array $files, ?string $table, string $baseDirPath, ConsoleIo $io, ?bool $unlockEntityFields = null): int
     {
-        $loader = new ScenarioLoader($baseDirPath);
+        $loader = new ScenarioLoader($baseDirPath, null, 'default', $unlockEntityFields ?? false);
         $totalInserted = 0;
         $totalUpdated = 0;
         $error = false;

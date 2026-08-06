@@ -106,7 +106,7 @@ YAMLシナリオファイルからテストデータを冪等にデータベー�
 - `_keys` ベースの冪等upsert(更新or新規作成)
 - ファイルを跨いだ `_ref` 参照マップ管理
 - テーブル単位のトランザクション制御
-- CLIコマンド: `bin/cake scenario load/clear`(`--base-dir` オプション対応)
+- CLIコマンド: `bin/cake scenario load/clear`(`--base-dir` / `--unlock-entity-fields` オプション対応)
 - デフォルトベースディレクトリは `Configure::write('Scenario.baseDir')` で設定可能
 
 [詳細 →](docs/scenario_loader.md)
