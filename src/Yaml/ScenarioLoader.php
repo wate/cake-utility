@@ -55,6 +55,16 @@ class ScenarioLoader
     protected string $connectionName = 'default';
 
     /**
+     * Entity の $_accessible 制限を一時解除して保存するか
+     *
+     * シナリオデータは ID・外部キーなどのフィールドを意図的に固定する用途がある。
+     * true の場合、persistRecord 内で setAccess('*', true) を一時適用して保存する。
+     *
+     * @var bool
+     */
+    protected bool $unlockEntityFields = false;
+
+    /**
      * コンストラクタ
      *
      * @param string|null $basePath シナリオファイルのベースディレクトリパス
@@ -62,8 +72,9 @@ class ScenarioLoader
      *   それも未設定の場合は '{CACHE}scenarios' を使用する。
      * @param \Cake\ORM\Locator\TableLocator|null $tableLocator テーブルロケーター（省略時はデフォルト）
      * @param string $connectionName テーブル解決に使用するDB接続名
+     * @param bool $unlockEntityFields Entity の $_accessible 制限を一時解除して保存するか
      */
-    public function __construct(?string $basePath = null, ?TableLocator $tableLocator = null, string $connectionName = 'default')
+    public function __construct(?string $basePath = null, ?TableLocator $tableLocator = null, string $connectionName = 'default', bool $unlockEntityFields = false)
     {
         $resolvedPath = $basePath
             ?? Configure::read('Scenario.baseDir')
@@ -71,6 +82,7 @@ class ScenarioLoader
         $this->basePath = rtrim($resolvedPath, DS);
         $this->tableLocator = $tableLocator ?? new TableLocator();
         $this->connectionName = $connectionName;
+        $this->unlockEntityFields = $unlockEntityFields;
     }
 
     /**
@@ -292,7 +304,15 @@ class ScenarioLoader
 
         // ID確定: id指定あり(Fixture的)または_keys-based(Seed的)
         $entity = $this->resolveEntity($table, $record, $originalRecord, $keys);
+
+        // unlockEntityFields 有効時のみ $_accessible 制限を一時解除して patch する
+        if ($this->unlockEntityFields) {
+            $entity->setAccess('*', true);
+        }
         $entity->patch($record);
+        if ($this->unlockEntityFields) {
+            $entity->setAccess('*', false);
+        }
 
         // Note: saveOrFail() sets isNew(false) after successful save, so capture it first
         $wasNew = $entity->isNew();

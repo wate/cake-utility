@@ -86,13 +86,18 @@ ScenarioLoader 仕様
 new ScenarioLoader(
     string $basePath,
     ?TableLocator $tableLocator = null,
-    string $connectionName = 'default'
+    string $connectionName = 'default',
+    bool $unlockEntityFields = false
 )
 ```
 
 - `$basePath`: YAMLファイルが格納されているベースディレクトリの絶対パス。
 - `$tableLocator`: CakePHPのTableLocatorインスタンス。省略時は `TableRegistry::getTableLocator()` が使用されます。
 - `$connectionName`: 使用するデータベース接続名。デフォルトは `'default'`。
+- `$unlockEntityFields`: Entityの `$_accessible` 制限を一時解除して保存するか。デフォルトは `false`。
+    - `false`(既定): Entityの `$_accessible` を尊重します。`patch()` でアクセス不可フィールドは反映されません。
+    - `true`: `persistRecord()` 内で `setAccess('*', true)` を一時適用して保存します。ID・外部キーなど、通常はmass assignmentで禁止されているフィールドをシナリオデータで意図的に固定する場合に使用します。
+    - 注意: `unlockEntityFields` は「シナリオデータをDBへ強制的に投入する」用途向けのオプションです。ユーザー入力由来のデータを扱う場面では有効化しないでください。
 
 利用サンプル
 -------------------------

@@ -12,6 +12,23 @@ use CakeUtility\Yaml\ScenarioLoader;
 use Cake\Database\TypeFactory;
 
 /**
+ * birthday フィールドの $_accessible を禁止した専用Entity
+ *
+ * ScenarioLoader の unlockEntityFields オプションの動作検証に使用する。
+ * users.birthday は NULL 許容のため、設定されない場合を検証しやすい。
+ */
+class RestrictedBirthdayUserEntity extends \Cake\ORM\Entity
+{
+    /**
+     * @var array<string, bool>
+     */
+    protected array $_accessible = [
+        '*' => true,
+        'birthday' => false,
+    ];
+}
+
+/**
  * ScenarioLoaderTest
  *
  * ScenarioLoader によるYAMLシナリオの投入・削除・参照解決を検証する。
@@ -214,5 +231,81 @@ class ScenarioLoaderTest extends TestCase
             unlink($tmpFile);
             rmdir($tmpDir);
         }
+    }
+
+    /**
+     * unlockEntityFields=false(既定)では $_accessible 制限が適用され、
+     * アクセス不可フィールドが保存されないことを検証する。
+     *
+     * @return void
+     */
+    public function testUnlockEntityFieldsDisabled(): void
+    {
+        $tableLocator = TableRegistry::getTableLocator();
+        $tmpDir = sys_get_temp_dir() . '/scenario_' . uniqid();
+        mkdir($tmpDir);
+        $tmpFile = $tmpDir . '/users.yml';
+
+        // birthday を $_accessible で禁止した専用Entityを設定する
+        // ScenarioLoader はファイル名(users.yml)から 'users' エイリアスでテーブルを取得するため、同じエイリアスに設定する
+        $table = $tableLocator->get('users', ['connectionName' => 'test']);
+        $table->setEntityClass(RestrictedBirthdayUserEntity::class);
+
+        file_put_contents($tmpFile, "- _ref: user_1\n  id: 999\n  username: testuser\n  email: test@example.com\n  birthday: '2000-01-01'");
+
+        $tmpParentDir = dirname($tmpDir);
+        $scenarioName = basename($tmpDir);
+
+        // 既定（unlockEntityFields=false）
+        $loader = new ScenarioLoader($tmpParentDir, $tableLocator, 'test');
+        $loader->load($scenarioName);
+
+        // birthday は patch() が $_accessible を尊重して反映しない（NULLのまま）
+        $record = $table->find()->where(['id' => 999])->first();
+        $this->assertNotEmpty($record, 'Record should be inserted');
+        $this->assertNull($record->birthday, 'birthday should NOT be force-set when unlockEntityFields=false');
+
+        // 後始末
+        $table->deleteAll(['1 = 1']);
+        unlink($tmpFile);
+        rmdir($tmpDir);
+    }
+
+    /**
+     * unlockEntityFields=true では $_accessible 制限が一時解除され、
+     * アクセス不可フィールド(name)も強制設定されることを検証する。
+     *
+     * @return void
+     */
+    public function testUnlockEntityFieldsEnabled(): void
+    {
+        $tableLocator = TableRegistry::getTableLocator();
+        $tmpDir = sys_get_temp_dir() . '/scenario_' . uniqid();
+        mkdir($tmpDir);
+        $tmpFile = $tmpDir . '/users.yml';
+
+        // birthday を $_accessible で禁止した専用Entityを設定する
+        // ScenarioLoader はファイル名(users.yml)から 'users' エイリアスでテーブルを取得するため、同じエイリアスに設定する
+        $table = $tableLocator->get('users', ['connectionName' => 'test']);
+        $table->setEntityClass(RestrictedBirthdayUserEntity::class);
+
+        file_put_contents($tmpFile, "- _ref: user_1\n  id: 999\n  username: testuser\n  email: test@example.com\n  birthday: '2000-01-01'");
+
+        $tmpParentDir = dirname($tmpDir);
+        $scenarioName = basename($tmpDir);
+
+        // unlockEntityFields=true
+        $loader = new ScenarioLoader($tmpParentDir, $tableLocator, 'test', true);
+        $loader->load($scenarioName);
+
+        // birthday が $_accessible 制限を一時解除されて設定される
+        $record = $table->find()->where(['id' => 999])->first();
+        $this->assertNotEmpty($record, 'Record with forced id should exist');
+        $this->assertNotNull($record->birthday, 'birthday should be force-set when unlockEntityFields=true');
+
+        // 後始末
+        $table->deleteAll(['1 = 1']);
+        unlink($tmpFile);
+        rmdir($tmpDir);
     }
 }
